@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Movies</title>
+</head>
+<body>
+    <ul id = "movies">
+    </ul>
+    <script>
+        fetch("api/movies")
+            .then(response => response.json())
+            .then(data => {
+                const movies = document.getElementById("movies");
+                data.forEach(movie => {
+                    const li = document.createElement("li");
+                    li.textContent = movie.title;
+                    movies.appendChild(li);
+                });
+            });
+    </script>
+</body>
+</html>

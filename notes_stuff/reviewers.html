@@ -8,9 +8,11 @@
     <ul id = "reviewers">
     </ul>
     <script>
+        console.log("Fetching reviewers...");
         fetch("/api/reviewers")
             .then(response => response.json())
             .then(data => {
+                console.log(data);
                 const reviewers = document.getElementById("reviewers");
                 data.forEach(reviewer => {
                     const li = document.createElement("li");

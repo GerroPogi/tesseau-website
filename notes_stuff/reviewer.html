@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Reviewer</title>
+</head>
+<body>
+    <script>
+        // Get the query parameters
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id'); // '123', '456', etc.
+
+        // Use it dynamically
+        if (id) {
+            document.getElementById('content').textContent = `You selected item ${id}`;
+        }
+        </script>
+
+        <div id="content"></div>
+
+</body>
+</html>

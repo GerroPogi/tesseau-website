@@ -14,7 +14,7 @@
             .then(data => {
                 console.log(data);
                 const reviewers = document.getElementById("reviewers");
-                data.results.forEach(reviewer => {
+                data.forEach(reviewer => {
                     const li = document.createElement("li");
                     li.textContent = reviewer.title;
                     li.setAttribute("href", `./reviewer?id=${reviewer.id}`);

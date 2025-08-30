@@ -1,0 +1,4 @@
+# Server logs and folders
+.wrangler/
+.wrangler
+node_modules/

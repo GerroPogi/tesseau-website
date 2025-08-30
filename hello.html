@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Hello</title>
+</head>
+<body>
+    <h1 id = "greeting"></h1>
+    <script>
+        fetch("/api/hello")
+            .then(response => response.json())
+            .then(data => {
+                const greetingElement = document.getElementById("greeting");
+                greetingElement.textContent = data.message;
+            });
+    </script>
+</body>
+</html>

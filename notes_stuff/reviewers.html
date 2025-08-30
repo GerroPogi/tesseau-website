@@ -10,7 +10,8 @@
     <script>
         console.log("Fetching reviewers...");
         fetch("/api/reviewers")
-            .then(response => response.json())
+            .then(response => {response.json();
+            console.log("Fetched reviewers."+ data.stringify());})
             .then(data => {
                 console.log(data);
                 const reviewers = document.getElementById("reviewers");

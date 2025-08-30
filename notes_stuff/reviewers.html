@@ -17,7 +17,7 @@
                 data.forEach(reviewer => {
                     const li = document.createElement("li");
                     li.textContent = reviewer.title;
-                    li.setAttribute("href", `./reviewer?id=${reviewer.id}`);
+                    li.setAttribute("href", `/reviewer?id=${reviewer.id}`);
                     reviewers.appendChild(li);
                 });
             });

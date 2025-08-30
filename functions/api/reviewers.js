@@ -19,7 +19,9 @@ export async function onRequestPost(context) {
 }
 
 export async function onRequestGet(context) {
-    const { results } = context.env.tesseau_db.prepare("SELECT * FROM reviewers").all();
+    console.log("Fetching reviewers...");
+    const results = await context.env.tesseau_db.prepare("SELECT * FROM reviewers").all();
+    console.log(`Fetched ${results.length} reviewers.`);
     return new Response(JSON.stringify(results), {
         headers: { "Content-Type": "application/json" },
     });

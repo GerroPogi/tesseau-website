@@ -8,21 +8,60 @@
     <ul id = "reviewers">
     </ul>
     <script>
-        fetch("https://jsonplaceholder.typicode.com/users")
+        fetch("/api/reviewers")
             .then(response => response.json())
             .then(data => {
                 const reviewers = document.getElementById("reviewers");
                 data.forEach(reviewer => {
                     const li = document.createElement("li");
-                    li.textContent = reviewer.name;
+                    li.textContent = reviewer.title;
                     reviewers.appendChild(li);
                 });
             });
     </script>
 
-    <form>
-        <input type="text" id="name" placeholder="Enter your reviewer" />
-        <button type="submit">Submit</button>
-    </form>
+    <section>
+        <script>
+            function handleSubmit(event) {
+                event.preventDefault();
+                const name = document.getElementById("name").value;
+                const reviewer = document.getElementById("reviewer").value;
+                const title = document.getElementById("title").value;
+                const subject = document.getElementById("subject").value;
+                const description = document.getElementById("description").value;
+
+                const reviewData = {
+                    creator: name,
+                    reviewer: reviewer,
+                    title: title,
+                    subject: subject,
+                    description: description
+                };
+
+                fetch('/api/reviewers', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(reviewData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            }
+        </script>
+        <form>
+            <input type="text" id="name" placeholder="Enter your name" />
+            <input type="text" id="reviewer" placeholder="Enter your reviewer" /> <!-- TODO: make this a drive or file upload -->
+            <input type="text" id="title" placeholder="Enter your title" />
+            <input type="text" id="subject" placeholder="Enter your subject" />
+            <input type="text" id="description" placeholder="Enter your description" />
+            <button type="submit" onclick="handleSubmit(event)">Submit</button>
+        </form>
+    </section>
 </body>
 </html>

@@ -5,3 +5,4 @@ node_modules/
 
 # Secrets
 .env
+wrangler.toml

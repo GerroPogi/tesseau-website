@@ -1,1 +1,17 @@
 PRAGMA defer_foreign_keys=TRUE;
+CREATE TABLE IF NOT EXISTS "reviewers"
+  (
+  id integer primary key autoincrement,
+  creator text not null,
+  reviewer text not null,
+  title text not null,
+  date_added text default (datetime('now')),
+  subject text default "None",
+  description text default "None",
+  rating integer default 0,
+  status integer default 1
+  );
+INSERT INTO reviewers VALUES(1,'Gerro','reviewer','reviewer','2025-08-30T16:16:54.687Z','Life and skills','idk negro',0,1);
+INSERT INTO reviewers VALUES(2,'Gerro','reviewer','reviewer','2025-08-30T18:05:32.962Z','Life and skills','idk negro',0,1);
+DELETE FROM sqlite_sequence;
+INSERT INTO sqlite_sequence VALUES('reviewers',2);

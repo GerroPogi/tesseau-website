@@ -4,19 +4,33 @@
     <meta charset="UTF-8" />
     <title>Reviewer</title>
 </head>
-<body>
-    <script>
-        // Get the query parameters
-        const params = new URLSearchParams(window.location.search);
-        const id = params.get('id'); // '123', '456', etc.
+    <body>
+        <div id="content"></div>
+        <script>
+            // Get the query parameters
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id'); // '123', '456', etc.
 
-        // Use it dynamically
-        if (id) {
-            document.getElementById('content').textContent = `You selected item ${id}`;
-        }
+            // Fetch the reviewer data based on the ID
+            fetch(`/api/reviewers/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    const contentDiv = document.getElementById("content");
+                    contentDiv.innerHTML = `
+                        <h1>${data.title}</h1>
+                        <p><strong>Creator:</strong> ${data.creator}</p>
+                        <p><strong>Reviewer:</strong> ${data.reviewer}</p>
+                        <p><strong>Subject:</strong> ${data.subject}</p>
+                        <p><strong>Description:</strong> ${data.description}</p>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error fetching reviewer data:', error);
+                });
         </script>
 
-        <div id="content"></div>
+        
 
-</body>
+    </body>
 </html>

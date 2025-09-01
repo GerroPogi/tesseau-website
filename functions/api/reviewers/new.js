@@ -1,5 +1,3 @@
-// Get reviewers from the database
-
 export async function onRequestPost(context) {
     const data = await context.request.json();
     const { creator, reviewer, title, subject, description } = data;
@@ -15,12 +13,5 @@ export async function onRequestPost(context) {
     
     return new Response(JSON.stringify({ success: true }), {
         headers: { "Content-Type": "application/json" }
-    });
-}
-
-export async function onRequestGet(context) {
-    const results = await context.env.tesseau_db.prepare("SELECT * FROM reviewers").all();
-    return new Response(JSON.stringify(results.results), {
-        headers: { "Content-Type": "application/json" },
     });
 }

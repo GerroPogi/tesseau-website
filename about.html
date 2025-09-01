@@ -8,5 +8,13 @@
     <h1>About</h1>
     <p>Website for 11 - Tesseau (S.Y. 2025-2026)</p>
     <p>This is a simple website made by Gerro Abarabar of 11 - Tesla</p>
+    <p id = "test-message"></p>
+    <script>
+        fetch("/api/test")
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+            });
+    </script>
 </body>
 </html>

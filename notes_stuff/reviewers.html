@@ -1,137 +1,200 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8" />
-    <title>Tesseau Reviewers</title>
-    
-    <!-- remove this when prod starts-->
-    <meta http-equiv="Content-Security-Policy" 
-      content="script-src 'self' https://apis.google.com https://accounts.google.com https://www.gstatic.com 'unsafe-inline';">
+  <meta charset="UTF-8" />
+  <title>Tesseau Reviewers</title>
 </head>
 <body>
-    <ul id="reviewers"></ul>
+  <ul id="reviewers"></ul>
 
-    <!-- Google API loader -->
-    <script src="https://apis.google.com/js/api.js"></script>
+  <!-- Google Identity Services + API Loader -->
+  <script src="https://apis.google.com/js/api.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-    <script>
-        // === CONFIG ===
-        const developerKey = "AIzaSyDQ4Xgj7yvKt6qH9JxXmUWk5Jr3nXm3nXm3n";   // API Key
-        const clientId = "661671724651-g991at5eiurrroi8aojjnmj8jit9agas.apps.googleusercontent.com"; // OAuth Client ID
-        const appId = "661671724651";   // numeric project number (Cloud Console → Project Settings)
-        const scope = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.readonly";
+  <script>
+    // === CONFIG ===
+    const developerKey = "AIzaSyCdVmlenk3Qvp1h0TSsIN-_YSN-8IpiQFk";
+    const clientId = "661671724651-g991at5eiurrroi8aojjnmj8jit9agas.apps.googleusercontent.com";
+    const appId = "661671724651";
+    const scope = "https://www.googleapis.com/auth/drive.file";
 
-        let oauthToken;
+    let oauthToken;
+    let tokenClient;
+    let pickerApiLoaded = false;
+    let selectedFiles = [];
 
-        // === AUTH + PICKER ===
-        function onApiLoad() {
-            gapi.load("client:auth2", initAuth);
+    // === INIT LIBRARIES ===
+    function gapiLoaded() {
+      gapi.load("picker", () => {
+        pickerApiLoaded = true;
+        console.log("Picker API loaded ✅");
+      });
+    }
+
+    function gisLoaded() {
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: clientId,
+        scope: scope,
+        callback: () => {}
+      });
+    }
+
+    // === AUTH + PICKER ===
+    function handleAuthClick() {
+      if (!tokenClient) {
+        console.error("GIS not initialized yet");
+        return;
+      }
+
+      tokenClient.callback = (tokenResponse) => {
+        if (tokenResponse.error) {
+          console.error("Auth error:", tokenResponse);
+          return;
         }
+        oauthToken = tokenResponse.access_token;
+        createPicker();
+      };
 
-        function initAuth() {
-            gapi.auth2.init({ client_id: clientId }).then(() => {
-                console.log("Auth2 initialized");
-            });
-        }
+      tokenClient.requestAccessToken({ prompt: "consent" });
+    }
 
-        function handleAuthClick() {
-            gapi.auth2.getAuthInstance().signIn({ scope: scope }).then(user => {
-                oauthToken = user.getAuthResponse().access_token;
-                createPicker();
-            });
-        }
+    function createPicker() {
+      if (!pickerApiLoaded || !oauthToken) return;
 
-        function createPicker() {
-            gapi.load("picker", { callback: () => {
-                if (oauthToken) {
-                    const view = new google.picker.View(google.picker.ViewId.DOCS);
-                    const picker = new google.picker.PickerBuilder()
-                        .setAppId(appId)
-                        .setOAuthToken(oauthToken)
-                        .addView(view)
-                        .setDeveloperKey(developerKey)
-                        .setCallback(pickerCallback)
-                        .build();
-                    picker.setVisible(true);
+      const view = new google.picker.DocsView(google.picker.ViewId.DOCS)
+        .setIncludeFolders(true)
+        .setSelectFolderEnabled(true);
+
+      const picker = new google.picker.PickerBuilder()
+        .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
+        .setAppId(appId)
+        .setOAuthToken(oauthToken)
+        .setDeveloperKey(developerKey)
+        .addView(view)
+        .setCallback(pickerCallback)
+        .build();
+
+      picker.setVisible(true);
+    }
+
+    async function pickerCallback(data) {
+        if (data.action === google.picker.Action.PICKED) {
+            const docs = data.docs;
+
+            selectedFiles = [];
+            for (const doc of docs) {
+            try {
+                let content = "";
+                if (doc.mimeType === "application/vnd.google-apps.document") {
+                // Export Google Docs → plain text
+                const response = await fetch(
+                    `https://www.googleapis.com/drive/v3/files/${doc.id}/export?mimeType=text/plain`,
+                    {
+                    headers: { Authorization: "Bearer " + oauthToken }
+                    }
+                );
+                content = await response.text();
+                } else {
+                // For binary/text files
+                const response = await fetch(
+                    `https://www.googleapis.com/drive/v3/files/${doc.id}?alt=media`,
+                    {
+                    headers: { Authorization: "Bearer " + oauthToken }
+                    }
+                );
+                content = await response.text();
                 }
-            }});
-        }
 
-        function pickerCallback(data) {
-            if (data.action === google.picker.Action.PICKED) {
-                const file = data.docs[0];
-                alert(`You picked: ${file.name} (id: ${file.id})`);
-                // You could store file.id in your DB here
-            }
-        }
-
-        // Load auth API on page start
-        gapi.load("client:auth2", onApiLoad);
-    </script>
-
-    <!-- Existing reviewers list fetch -->
-    <script>
-        console.log("Fetching reviewers...");
-        fetch("/api/reviewers")
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                const reviewers = document.getElementById("reviewers");
-                data.forEach(reviewer => {
-                    const li = document.createElement("li");
-                    li.innerHTML = `<a href="./reviewer.html?id=${reviewer.id}">${reviewer.title}</a>`;
-                    reviewers.appendChild(li);
+                selectedFiles.push({
+                id: doc.id,
+                name: doc.name,
+                mimeType: doc.mimeType,
+                content: content
                 });
+            } catch (err) {
+                console.error("Error fetching file:", doc.name, err);
+            }
+            }
+
+            console.log("Picked files with content:", selectedFiles);
+
+            // Show picked files under the button
+            const fileList = document.getElementById("pickedFiles");
+            fileList.innerHTML = "";
+            selectedFiles.forEach(file => {
+            const li = document.createElement("li");
+            li.textContent = `${file.name} (${file.id})`;
+            fileList.appendChild(li);
             });
+        }
+        }
+
+
+    // Load GIS and GAPI when page loads
+    window.onload = () => {
+      gapiLoaded();
+      gisLoaded();
+    };
+  </script>
+
+  <!-- Existing reviewers list fetch -->
+  <script>
+    console.log("Fetching reviewers...");
+    fetch("/api/reviewers")
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        const reviewers = document.getElementById("reviewers");
+        data.forEach(reviewer => {
+          const li = document.createElement("li");
+          li.innerHTML = `<a href="./reviewer.html?id=${reviewer.id}">${reviewer.title}</a>`;
+          reviewers.appendChild(li);
+        });
+      });
+  </script>
+
+  <section>
+    <script>
+      function handleSubmit(event) {
+        event.preventDefault();
+        const name = document.getElementById("name").value;
+        const title = document.getElementById("title").value;
+        const subject = document.getElementById("subject").value;
+        const description = document.getElementById("description").value;
+
+        const reviewData = {
+          creator: name,
+          title: title,
+          subject: subject,
+          description: description,
+          files: JSON.stringify(selectedFiles) // includes id, name, mimeType, content
+        };
+
+        console.log("Submitting review:", reviewData);
+
+        fetch('/api/reviewers/new', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(reviewData)
+        })
+        .then(response => response.json())
+        .then(data => console.log('Success:', data))
+        .catch((error) => console.error('Error:', error));
+      }
     </script>
 
-    <section>
-        <script>
-            function handleSubmit(event) {
-                event.preventDefault();
-                const name = document.getElementById("name").value;
-                const reviewer = document.getElementById("reviewer").value;
-                const title = document.getElementById("title").value;
-                const subject = document.getElementById("subject").value;
-                const description = document.getElementById("description").value;
+    <!-- Drive Picker trigger -->
+    <ul id="pickedFiles"></ul>
 
-                const reviewData = {
-                    creator: name,
-                    reviewer: reviewer,
-                    title: title,
-                    subject: subject,
-                    description: description
-                };
-
-                fetch('/api/reviewers/new', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(reviewData)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Success:', data);
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
-            }
-        </script>
-
-        <!-- Drive Picker trigger -->
-        <button onclick="handleAuthClick()">Pick a File</button>
-
-        <!-- Review submit form -->
-        <form>
-            <input type="text" id="name" placeholder="Enter your name" />
-            <input type="text" id="reviewer" placeholder="Enter your reviewer" />
-            <input type="text" id="title" placeholder="Enter your title" />
-            <input type="text" id="subject" placeholder="Enter your subject" />
-            <input type="text" id="description" placeholder="Enter your description" />
-            <button type="submit" onclick="handleSubmit(event)">Submit</button>
-        </form>
-    </section>
+    <!-- Review submit form -->
+    <form>
+      <input type="text" id="name" placeholder="Enter your name" />
+      <button type="button" id="pickFile" onclick="handleAuthClick()">Pick Files</button>
+      <input type="text" id="title" placeholder="Enter your title" />
+      <input type="text" id="subject" placeholder="Enter your subject" />
+      <input type="text" id="description" placeholder="Enter your description" />
+      <button type="submit" onclick="handleSubmit(event)">Submit</button>
+    </form>
+  </section>
 </body>
 </html>

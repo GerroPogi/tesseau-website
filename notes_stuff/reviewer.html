@@ -1,36 +1,225 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8" />
-    <title>Reviewer</title>
+  <meta charset="UTF-8" />
+  <title>Reviewer</title>
+  <style>
+    /* ✅ Make sure root fills viewport */
+    html, body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 15px;
+      border-bottom: 1px solid #ccc;
+      background: #f8f8f8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0; /* ✅ Prevent header from shrinking */
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    header p {
+      margin: 5px 0 0;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .back-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .back-btn:hover {
+      background: #0056b3;
+    }
+
+    /* ✅ Fill remaining viewport under header */
+    .container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    .sidebar {
+      width: 220px;
+      border-right: 1px solid #ccc;
+      background: #f4f4f4;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    .tab {
+      padding: 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .tab.active {
+      background: #fff;
+      font-weight: bold;
+      border-left: 4px solid #007bff;
+    }
+
+    /* ✅ Make content always fill height */
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+      position: relative; /* ✅ allow absolute filling children */
+    }
+
+    .viewer, .about, .comments {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
+        padding: 20px;
+        box-sizing: border-box;
+        }
+
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
-    <body>
-        <div id="content"></div>
-        <script>
-            // Get the query parameters
-            const params = new URLSearchParams(window.location.search);
-            const id = params.get('id'); // '123', '456', etc.
+<body>
+  <header>
+    <div>
+      <h1 id="title"></h1>
+      <p id="creator"></p>
+    </div>
+    <a href="/notes_stuff/reviewers" class="back-btn">← Back</a>
+  </header>
 
-            // Fetch the reviewer data based on the ID
-            fetch(`/api/reviewers/${id}`)
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-                    const contentDiv = document.getElementById("content");
-                    contentDiv.innerHTML = `
-                        <h1>${data.title}</h1>
-                        <p><strong>Creator:</strong> ${data.creator}</p>
-                        <p><strong>Reviewer:</strong> ${data.reviewer}</p>
-                        <p><strong>Subject:</strong> ${data.subject}</p>
-                        <p><strong>Description:</strong> ${data.description}</p>
-                    `;
-                })
-                .catch(error => {
-                    console.error('Error fetching reviewer data:', error);
-                });
-        </script>
+  <div class="container">
+    <div class="sidebar" id="sidebar"></div>
 
-        
+    <div class="content">
+      <div id="viewer-container" class = "viewer"></div>
+      <div id="about" class="hidden"></div>
+      <div id="comments" class="hidden">
+        <p><em>Comments section coming soon...</em></p>
+      </div>
+    </div>
+  </div>
 
-    </body>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    fetch(`/api/reviewers/${id}`)
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("title").textContent = data.title;
+        document.getElementById("creator").textContent = "Creator: " + data.creator;
+
+        const sidebar = document.getElementById("sidebar");
+        const viewerContainer = document.getElementById("viewer-container");
+        const aboutDiv = document.getElementById("about");
+
+        let reviewers = [];
+        try {
+          reviewers = JSON.parse(data.reviewer);
+        } catch (e) {
+          reviewers = [{ id: null, name: data.reviewer }];
+        }
+
+        reviewers.forEach((r, index) => {
+          const tab = document.createElement("div");
+          tab.classList.add("tab");
+          if (index === 0) tab.classList.add("active");
+          tab.innerText = r.name;
+          sidebar.appendChild(tab);
+
+          tab.addEventListener("click", () => {
+            document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+            tab.classList.add("active");
+
+
+            viewerContainer.innerHTML = `
+              <iframe 
+                class="viewer"
+                src="https://drive.google.com/file/d/${r.id}/preview"
+                allow="autoplay"
+              ></iframe>
+            `;
+
+            aboutDiv.classList.add("hidden");
+            document.getElementById("comments").classList.add("hidden");
+            viewerContainer.classList.remove("hidden");
+          });
+
+          if (index === 0 && r.id) {
+            viewerContainer.innerHTML = `
+              <iframe 
+                class="viewer"
+                src="https://drive.google.com/file/d/${r.id}/preview"
+                allow="autoplay"
+              ></iframe>
+            `;
+          }
+        });
+
+        // About tab
+        const aboutTab = document.createElement("div");
+        aboutTab.classList.add("tab");
+        aboutTab.innerText = "About";
+        sidebar.appendChild(aboutTab);
+
+        aboutTab.addEventListener("click", () => {
+          document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+          aboutTab.classList.add("active");
+          viewerContainer.innerHTML = "";
+          viewerContainer.classList.add("hidden");
+          aboutDiv.innerHTML = `
+            <p><strong>Subject:</strong> ${data.subject}</p>
+            <p><strong>Description:</strong> ${data.description}</p>
+          `;
+          aboutDiv.classList.remove("hidden");
+          document.getElementById("comments").classList.add("hidden");
+        });
+
+        // Comments tab
+        const commentsTab = document.createElement("div");
+        commentsTab.classList.add("tab");
+        commentsTab.innerText = "Comments";
+        sidebar.appendChild(commentsTab);
+
+        commentsTab.addEventListener("click", () => {
+          document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+          commentsTab.classList.add("active");
+          viewerContainer.innerHTML = "";
+          aboutDiv.classList.add("hidden");
+          viewerContainer.classList.add("hidden");
+          document.getElementById("comments").classList.remove("hidden");
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching reviewer data:', error);
+      });
+  </script>
+</body>
 </html>

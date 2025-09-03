@@ -3,8 +3,197 @@
 <head>
   <meta charset="UTF-8" />
   <title>Tesseau Reviewers</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 1rem;
+      background: #f9fafb;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    ul#reviewers {
+      list-style: none;
+      padding: 0;
+      margin-top: 1rem;
+    }
+
+    ul#reviewers li {
+      padding: 0.5rem 1rem;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      margin: 0.4rem 0;
+    }
+
+    ul#reviewers li a {
+      text-decoration: none;
+      color: #0077cc;
+      font-weight: bold;
+    }
+
+    ul#reviewers li a:hover {
+      text-decoration: underline;
+    }
+
+    /* Filters & Search */
+    .filters {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      margin: 1rem 0;
+      padding: 0.8rem;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+
+    .filters input,
+    .filters select {
+      flex: 1;
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 0.9rem;
+    }
+
+    /* Form styling */
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+
+    /* Row of inputs */
+    .form-row {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    form input[type="text"],
+    form select,
+    form textarea {
+      flex: 1;
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 0.9rem;
+    }
+
+    form textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    form select {
+      background: #fff;
+      cursor: pointer;
+    }
+
+    /* Buttons */
+    button {
+      padding: 0.6rem 1rem;
+      border: none;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    button#pickFile {
+      background: #6366f1;
+      color: white;
+    }
+
+    button#pickFile:hover {
+      background: #4f46e5;
+    }
+
+    button[type="submit"] {
+      background: #10b981;
+      color: white;
+      align-self: flex-start;
+    }
+
+    button[type="submit"]:hover {
+      background: #059669;
+    }
+
+    /* Picked files list */
+    #pickedFiles {
+      list-style: none;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      background: #f1f5f9;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+    }
+
+    #pickedFiles li {
+      padding: 0.3rem 0.5rem;
+      font-size: 0.85rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    #pickedFiles li:last-child {
+      border-bottom: none;
+    }
+    .nav-link {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 0.5rem 0.8rem;
+      border-radius: 5px;
+      transition: background 0.2s;
+    }
+  </style>
 </head>
 <body>
+  <h1>Tesseau Reviewers</h1>
+  <!-- Navigation bar -->
+  <header>
+    <nav style="background: #6366f1; border-radius: 8px; padding: 0.5rem 1rem; margin-bottom: 1rem;">
+      <ul style="display: flex; gap: 2rem; list-style: none; margin: 0; padding: 0;">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="reviewers.html" class="nav-link">Reviewers</a></li>
+        <li><a href="reminders.html" class="nav-link">Reminders</a></li>
+        <li><a href="about.html" class ="nav-link">About</a></li>
+      </ul>
+    </nav>
+    <style>
+      header nav ul li a:hover {
+        background: #4f46e5;
+      }
+    </style>
+  </header>
+
+  <!-- 🔎 Search & Filters -->
+  <div class="filters">
+    <input type="text" id="search" placeholder="Search by title..." />
+    <input type="text" id="filterCreator" placeholder="Filter by creator..." />
+    <select id="filterSubject">
+      <option value="">Filter by subject</option>
+      <option>Intro to Philosophy</option>
+      <option>Earth and Space Science 1</option>
+      <option>Finite Math 1</option>
+      <option>English</option>
+      <option>Filipino</option>
+      <option>General Math</option>
+      <option>General Science</option>
+      <option>Life and Career Skills</option>
+      <option>Pag-aaral ng Kasaysayan at Lipunang Pilipino</option>
+    </select>
+    <input type="date" id="filterDate" />
+  </div>
+
   <ul id="reviewers"></ul>
 
   <!-- Google Identity Services + API Loader -->
@@ -22,12 +211,12 @@
     let tokenClient;
     let pickerApiLoaded = false;
     let selectedFiles = [];
+    let allReviewers = [];
 
     // === INIT LIBRARIES ===
     function gapiLoaded() {
       gapi.load("picker", () => {
         pickerApiLoaded = true;
-        console.log("Picker API loaded ✅");
       });
     }
 
@@ -41,26 +230,17 @@
 
     // === AUTH + PICKER ===
     function handleAuthClick() {
-      if (!tokenClient) {
-        console.error("GIS not initialized yet");
-        return;
-      }
-
+      if (!tokenClient) return;
       tokenClient.callback = (tokenResponse) => {
-        if (tokenResponse.error) {
-          console.error("Auth error:", tokenResponse);
-          return;
-        }
+        if (tokenResponse.error) return;
         oauthToken = tokenResponse.access_token;
         createPicker();
       };
-
       tokenClient.requestAccessToken({ prompt: "consent" });
     }
 
     function createPicker() {
       if (!pickerApiLoaded || !oauthToken) return;
-
       const view = new google.picker.DocsView(google.picker.ViewId.DOCS)
         .setIncludeFolders(true)
         .setSelectFolderEnabled(true);
@@ -78,78 +258,70 @@
     }
 
     async function pickerCallback(data) {
-        if (data.action === google.picker.Action.PICKED) {
-            const docs = data.docs;
+      if (data.action === google.picker.Action.PICKED) {
+        const docs = data.docs;
+        selectedFiles = docs.map(doc => ({
+          id: doc.id,
+          name: doc.name,
+          mimeType: doc.mimeType
+        }));
 
-            selectedFiles = [];
-            for (const doc of docs) {
-            try {
-                let content = "";
-                if (doc.mimeType === "application/vnd.google-apps.document") {
-                // Export Google Docs → plain text
-                const response = await fetch(
-                    `https://www.googleapis.com/drive/v3/files/${doc.id}/export?mimeType=text/plain`,
-                    {
-                    headers: { Authorization: "Bearer " + oauthToken }
-                    }
-                );
-                content = await response.text();
-                } else {
-                // For binary/text files
-                const response = await fetch(
-                    `https://www.googleapis.com/drive/v3/files/${doc.id}?alt=media`,
-                    {
-                    headers: { Authorization: "Bearer " + oauthToken }
-                    }
-                );
-                content = await response.text();
-                }
+        const fileList = document.getElementById("pickedFiles");
+        fileList.innerHTML = "";
+        selectedFiles.forEach(file => {
+          const li = document.createElement("li");
+          li.textContent = `${file.name} (${file.id})`;
+          fileList.appendChild(li);
+        });
+      }
+    }
 
-                selectedFiles.push({
-                id: doc.id,
-                name: doc.name,
-                mimeType: doc.mimeType,
-                });
-            } catch (err) {
-                console.error("Error fetching file:", doc.name, err);
-            }
-            }
+    // === FETCH REVIEWERS ===
+    function renderReviewers(list) {
+      const reviewers = document.getElementById("reviewers");
+      reviewers.innerHTML = "";
+      list.forEach(reviewer => {
+        const li = document.createElement("li");
+        li.innerHTML = `<a href="./reviewer.html?id=${reviewer.id}">${reviewer.title}</a>
+                        <div><small>By ${reviewer.creator} • ${reviewer.subject} • ${reviewer.date || ""}</small></div>`;
+        reviewers.appendChild(li);
+      });
+    }
 
-            console.log("Picked files with content:", selectedFiles);
+    fetch("/api/reviewers")
+      .then(response => response.json())
+      .then(data => {
+        allReviewers = data;
+        renderReviewers(allReviewers);
+      });
 
-            // Show picked files under the button
-            const fileList = document.getElementById("pickedFiles");
-            fileList.innerHTML = "";
-            selectedFiles.forEach(file => {
-            const li = document.createElement("li");
-            li.textContent = `${file.name} (${file.id})`;
-            fileList.appendChild(li);
-            });
-        }
-        }
+    // === FILTERS & SEARCH ===
+    function applyFilters() {
+      const search = document.getElementById("search").value.toLowerCase();
+      const creator = document.getElementById("filterCreator").value.toLowerCase();
+      const subject = document.getElementById("filterSubject").value;
+      const date = document.getElementById("filterDate").value;
 
+      const filtered = allReviewers.filter(r => {
+        const matchesSearch = r.title.toLowerCase().startsWith(search);
+        const matchesCreator = creator ? r.creator.toLowerCase().includes(creator) : true;
+        const matchesSubject = subject ? r.subject === subject : true;
+        const matchesDate = date ? r.date_added && r.date_added.startsWith(date) : true;
+        return matchesSearch && matchesCreator && matchesSubject && matchesDate;
+      });
 
-    // Load GIS and GAPI when page loads
+      renderReviewers(filtered);
+    }
+
+    document.getElementById("search").addEventListener("input", applyFilters);
+    document.getElementById("filterCreator").addEventListener("input", applyFilters);
+    document.getElementById("filterSubject").addEventListener("change", applyFilters);
+    document.getElementById("filterDate").addEventListener("change", applyFilters);
+
     window.onload = () => {
       gapiLoaded();
       gisLoaded();
     };
-  </script>
-
-  <!-- Existing reviewers list fetch -->
-  <script>
-    console.log("Fetching reviewers...");
-    fetch("/api/reviewers")
-      .then(response => response.json())
-      .then(data => {
-        console.log(data);
-        const reviewers = document.getElementById("reviewers");
-        data.forEach(reviewer => {
-          const li = document.createElement("li");
-          li.innerHTML = `<a href="./reviewer.html?id=${reviewer.id}">${reviewer.title}</a>`;
-          reviewers.appendChild(li);
-        });
-      });
   </script>
 
   <section>
@@ -166,32 +338,54 @@
           title: title,
           subject: subject,
           description: description,
-          files: JSON.stringify(selectedFiles) // includes id, name, mimeType, content
+          reviewer: JSON.stringify(selectedFiles)
         };
 
-        console.log("Submitting review:", reviewData);
-
         fetch('/api/reviewers/new', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(reviewData)
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(reviewData)
         })
         .then(response => response.json())
-        .then(data => console.log('Success:', data))
-        .catch((error) => console.error('Error:', error));
+        .then(data => {
+          // Reset
+          document.getElementById("name").value = "";
+          document.getElementById("title").value = "";
+          document.getElementById("subject").value = "";
+          document.getElementById("description").value = "";
+          document.getElementById("pickedFiles").innerHTML = "";
+          selectedFiles = [];
+
+          allReviewers.push(data);
+          renderReviewers(allReviewers);
+        })
+        .catch(err => console.error('Error:', err));
       }
     </script>
 
-    <!-- Drive Picker trigger -->
+    <!-- Picked Files -->
     <ul id="pickedFiles"></ul>
 
     <!-- Review submit form -->
     <form>
-      <input type="text" id="name" placeholder="Enter your name" />
+      <div class="form-row">
+        <input type="text" id="name" placeholder="Enter your name" />
+        <input type="text" id="title" placeholder="Enter your title" />
+        <select id="subject">
+          <option value="">-- Select Subject --</option>
+          <option>Intro to Philosophy</option>
+          <option>Earth and Space Science 1</option>
+          <option>Finite Math 1</option>
+          <option>English</option>
+          <option>Filipino</option>
+          <option>General Math</option>
+          <option>General Science</option>
+          <option>Life and Career Skills</option>
+          <option>Pag-aaral ng Kasaysayan at Lipunang Pilipino</option>
+        </select>
+      </div>
+      <textarea id="description" placeholder="Enter your description"></textarea>
       <button type="button" id="pickFile" onclick="handleAuthClick()">Pick Files</button>
-      <input type="text" id="title" placeholder="Enter your title" />
-      <input type="text" id="subject" placeholder="Enter your subject" />
-      <input type="text" id="description" placeholder="Enter your description" />
       <button type="submit" onclick="handleSubmit(event)">Submit</button>
     </form>
   </section>

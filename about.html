@@ -1,20 +1,93 @@
 <!DOCTYPE html>
+<style>
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+        padding: 0;
+        min-height: 100vh;
+    }
+    .container {
+        max-width: 600px;
+        margin: 60px auto;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 8px 32px rgba(44, 62, 80, 0.12);
+        padding: 40px 32px;
+        text-align: center;
+    }
+    h1 {
+        font-size: 2.5rem;
+        color: #2d5fa4;
+        margin-bottom: 18px;
+        letter-spacing: 2px;
+    }
+    li, p {
+        font-size: 1.15rem;
+        color: #444;
+        margin-bottom: 16px;
+    }
+    .image-container img{
+        margin-left: 10px;
+    }
+    .navbar {
+            background: #2d3748;
+            padding: 0.5em 2em;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .navbar .logo {
+            font-weight: 700;
+            font-size: 1.5em;
+            color: #fff;
+            margin-right: 2em;
+            letter-spacing: 2px;
+        }
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            gap: 1.5em;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar li {
+            display: inline;
+        }
+        .navbar a {
+            color: #e2e8f0;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .navbar a:hover {
+            color: #63b3ed;
+        }
+</style>
 <html>
 <head>
     <meta charset="UTF-8" />
     <title>Tesseau About</title>
 </head>
 <body>
+    <nav class="navbar">
+        <span class="logo">Tesseau</span>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="notes_stuff/reviewers.html" id="reviewers">Reviewers</a></li>
+            <li><a href="reminders.html">Reminders</a></li>
+            <li><a href="about.html">About</a></li>
+        </ul>
+    </nav>
     <h1>About</h1>
     <p>Website for 11 - Tesseau (S.Y. 2025-2026)</p>
+    <span class = "image-container"><img src = "/assets/me.jpg" alt="Gerro Abarabar" width="135" height="135" style="border-radius: 50%; object-fit: cover; "></span>
     <p>This is a simple website made by Gerro Abarabar of 11 - Tesla</p>
-    <p id = "test-message"></p>
-    <script>
-        fetch("/api/test")
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-            });
-    </script>
+    <p>Using the help of:</p>
+    <ul>
+        <li>ChatGPT - for coding assistance and suggestions</li>
+        <li>GitHub Copilot - for code completion and ideas</li>
+        <li>Google - for searching and learning</li>
+        <li>Windsurf - for code completions</li>
+    </ul>
 </body>
 </html>

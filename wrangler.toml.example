@@ -1,0 +1,9 @@
+# wrangler.toml
+name = "my-worker"
+main = "src/index.js"
+compatibility_date = "2025-08-30"
+
+[[d1_databases]]
+binding = "tesseau_db"
+database_name = "tesseau"        # Local SQLite file path
+database_id = "5a51993e-9701-428d-b49b-2229ceb48ef5"

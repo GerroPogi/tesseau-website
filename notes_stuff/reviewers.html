@@ -283,7 +283,7 @@
       list.forEach(reviewer => {
         const li = document.createElement("li");
         li.innerHTML = `<a href="./reviewer.html?id=${reviewer.id}">${reviewer.title}</a>
-                        <div><small>By ${reviewer.creator} • ${reviewer.subject} • ${reviewer.date || ""}</small></div>`;
+                        <div><small>By ${reviewer.creator} • ${reviewer.subject} • ${reviewer.date_added ? new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(reviewer.date_added)) : ""}</small></div>`;
         reviewers.appendChild(li);
       });
     }

@@ -1,8 +1,8 @@
-CREATE TABLE reviewer_comments (
-  id integer primary key autoincrement,
+create table reviewer_comment_replies (
+  id integer primary key autoincrement not null,
   author text not null,
   content text not null,
-  likes integer not null,
+  likes text not null,
   date_added datetime not null,
-	reviewer_id integer not null
+  comment_id integer not null
   )

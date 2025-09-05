@@ -22,16 +22,8 @@
       flex-shrink: 0;
     }
 
-    header h1 {
-      margin: 0;
-      font-size: 20px;
-    }
-
-    header p {
-      margin: 5px 0 0;
-      font-size: 14px;
-      color: #555;
-    }
+    header h1 { margin: 0; font-size: 20px; }
+    header p { margin: 5px 0 0; font-size: 14px; color: #555; }
 
     .back-btn {
       background: #007bff;
@@ -43,114 +35,87 @@
       font-size: 14px;
       text-decoration: none;
     }
+    .back-btn:hover { background: #0056b3; }
 
-    .back-btn:hover {
-      background: #0056b3;
-    }
-
-    .container {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-      height: 100%;
-    }
-
+    .container { display: flex; flex: 1; overflow: hidden; height: 100%; }
     .sidebar {
-      width: 220px;
-      border-right: 1px solid #ccc;
-      background: #f4f4f4;
-      overflow-y: auto;
-      flex-shrink: 0;
+      width: 220px; border-right: 1px solid #ccc;
+      background: #f4f4f4; overflow-y: auto; flex-shrink: 0;
     }
-
     .tab {
-      padding: 12px;
-      cursor: pointer;
-      border-bottom: 1px solid #ddd;
+      padding: 12px; cursor: pointer; border-bottom: 1px solid #ddd;
     }
-
     .tab.active {
-      background: #fff;
-      font-weight: bold;
-      border-left: 4px solid #007bff;
+      background: #fff; font-weight: bold; border-left: 4px solid #007bff;
     }
-
-    .content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      overflow: hidden;
-      position: relative;
-    }
-
+    .content { flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden; position: relative; }
     .viewer, .about, .comments {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100%;
-      height: 100%;
-      overflow-y: auto;
-      padding: 20px;
-      box-sizing: border-box;
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      width: 100%; height: 100%; overflow-y: auto;
+      padding: 20px; box-sizing: border-box;
     }
+    .hidden { display: none; }
 
-    .hidden {
-      display: none;
-    }
-
-    /* --- Comments section styles --- */
+    /* --- Comments section --- */
     .comment-form {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
+      display: flex; gap: 10px; margin-bottom: 15px;
     }
-
     .comment-form input, .comment-form textarea {
-      padding: 8px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      padding: 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px;
     }
-
-    .comment-form input {
-      width: 150px;
-    }
-
-    .comment-form textarea {
-      flex: 1;
-      resize: vertical;
-      min-height: 50px;
-    }
-
+    .comment-form input { width: 150px; }
+    .comment-form textarea { flex: 1; resize: vertical; min-height: 50px; }
     .comment-form button {
-      background: #007bff;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
-      cursor: pointer;
+      background: #007bff; color: white; border: none;
+      padding: 8px 16px; border-radius: 4px; cursor: pointer;
     }
+    .comment-form button:hover { background: #0056b3; }
 
-    .comment-form button:hover {
-      background: #0056b3;
-    }
-
-    .comment-list {
-      margin-top: 10px;
-    }
-
+    .comment-list { margin-top: 10px; }
     .comment-item {
-      border-bottom: 1px solid #ddd;
-      padding: 8px 0;
+      border-bottom: 1px solid #ddd; padding: 8px 0;
+    }
+    .comment-meta { font-size: 12px; color: #666; }
+
+    /* --- Reply styles --- */
+    .reply-list {
+      margin-left: 20px; margin-top: 5px;
+      border-left: 2px solid #eee; padding-left: 10px;
+    }
+    .reply-item {
+      margin-top: 5px; padding: 5px 0;
+      border-bottom: 1px dashed #ddd;
+    }
+    .reply-meta { font-size: 12px; color: #666; }
+
+    .reply-form {
+      margin-top: 8px; display: flex; flex-direction: column; gap: 5px;
+    }
+    .reply-form input, .reply-form textarea {
+      padding: 6px; font-size: 13px; border: 1px solid #ccc; border-radius: 4px;
+    }
+    .reply-form button {
+      align-self: flex-start;
+      background: #28a745; color: white; border: none;
+      padding: 6px 12px; border-radius: 4px; cursor: pointer;
+    }
+    .reply-form button:hover { background: #1e7e34; }
+
+    .reply-link,
+    .toggle-replies {
+      font-size: 12px;
+      color: #007bff;
+      cursor: pointer;
+      margin-top: 5px;
+      display: inline-block;
+      margin-right: 12px; /* spacing between links */
     }
 
-    .comment-meta {
-      font-size: 12px;
-      color: #666;
+    .reply-link:hover,
+    .toggle-replies:hover {
+      text-decoration: underline;
     }
+
   </style>
 </head>
 <body>
@@ -283,7 +248,7 @@
 
           const newComment = {
             author,
-            comment: commentText,
+            content: commentText,
             likes: 0,
             date_added: new Date().toISOString(),
             reviewer_id: id
@@ -305,25 +270,113 @@
         function addCommentToList(comment) {
           const div = document.createElement("div");
           div.classList.add("comment-item");
+          div.dataset.commentId = comment.id;
           div.innerHTML = `
             <p>${comment.content}</p>
             <div class="comment-meta">— ${comment.author}, ${new Date(comment.date_added).toLocaleString()}</div>
+            <span class="reply-link">Reply</span>
+            <span class="toggle-replies">Show replies</span>
+            <div class="reply-list hidden"></div>
           `;
+          
+          const replyList = div.querySelector(".reply-list");
+          const toggleReplies = div.querySelector(".toggle-replies");
+
+          // Toggle replies
+          toggleReplies.addEventListener("click", () => {
+            if (replyList.classList.contains("hidden")) {
+              if (!replyList.dataset.loaded) {
+                fetch(`/api/replies/${comment.id}`)
+                  .then(res => res.json())
+                  .then(replies => {
+                    replies.results.forEach(reply => {
+                      addReplyToList(reply, replyList);
+                    });
+                    replyList.dataset.loaded = "true";
+                  });
+              }
+              replyList.classList.remove("hidden");
+              toggleReplies.textContent = "Hide replies";
+            } else {
+              replyList.classList.add("hidden");
+              toggleReplies.textContent = "Show replies";
+            }
+          });
+
+          // Reply form toggle
+          const replyLink = div.querySelector(".reply-link");
+          replyLink.addEventListener("click", () => {
+            let replyForm = div.querySelector(".reply-form");
+            if (replyForm) {
+              replyForm.remove();
+            } else {
+              replyForm = document.createElement("form");
+              replyForm.classList.add("reply-form");
+              replyForm.innerHTML = `
+                <input type="text" placeholder="Your name (or anonymous)" class="reply-author"/>
+                <textarea placeholder="Write a reply..." class="reply-text"></textarea>
+                <button type="submit">Reply</button>
+              `;
+              div.appendChild(replyForm);
+
+              replyForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const author = replyForm.querySelector(".reply-author").value.trim() || "Anonymous";
+                const content = replyForm.querySelector(".reply-text").value.trim();
+                if (!content) return;
+
+                const newReply = {
+                  author,
+                  content,
+                  likes: 0,
+                  date_added: new Date().toISOString(),
+                  comment_id: comment.id
+                };
+
+                fetch("/api/replies/new", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(newReply)
+                })
+                .then(res => res.json())
+                .then(saved => {
+                  addReplyToList(saved, replyList);
+                  replyList.classList.remove("hidden");
+                  toggleReplies.textContent = "Hide replies";
+                  replyForm.reset();
+                })
+                .catch(err => console.error("Error saving reply:", err));
+              });
+            }
+          });
+
           commentList.prepend(div);
         }
+
+
+        function addReplyToList(reply, replyList) {
+          const replyDiv = document.createElement("div");
+          replyDiv.classList.add("reply-item");
+          replyDiv.innerHTML = `
+            <p>${reply.content}</p>
+            <div class="reply-meta">— ${reply.author}, ${new Date(reply.date_added).toLocaleString()}</div>
+          `;
+          replyList.appendChild(replyDiv);
+        }
+
+
+        // Load initial comments
         fetch(`/api/comments/${id}`)
-        .then(response => response.json())
-        .then(data => {
-          data.results.forEach(comment => {
-            addCommentToList(comment);
-            console.log("added new comment: ",comment);
+          .then(response => response.json())
+          .then(data => {
+            data.results.forEach(comment => {
+              addCommentToList(comment);
+            });
           });
-        });
       })
       .catch(error => {
         console.error('Error fetching reviewer data:', error);
       });
-      
   </script>
 </body>
 </html>

@@ -3,64 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <title>Tesseau About</title>
+  <link href = "/css/base.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
-    body {
-      margin: 0;
-      font-family: 'Montserrat', Arial, sans-serif;
-      background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column; /* stack navbar on top, content below */
-    }
-
-    .navbar {
-        background: #2d3748;
-        padding: 0 2em;
-        display: flex;
-        align-items: center;   /* ✅ vertical centering */
-        justify-content: flex-start; /* ✅ keep items on the left */
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        height: 60px;          /* consistent height */
-        }
-
-        .navbar .logo {
-        font-weight: 700;
-        font-size: 1.5em;
-        color: #fff;
-        margin-right: 2em;
-        letter-spacing: 2px;
-        line-height: 1;        /* removes weird offset */
-        display: flex;
-        align-items: center;   /* ensure logo text vertically aligns */
-        }
-
-        .navbar ul {
-        list-style: none;
-        display: flex;
-        gap: 1.5em;
-        margin: 0;
-        padding: 0;
-        }
-
-        .navbar li {
-        display: flex;
-        align-items: center;   /* ✅ keeps links centered */
-        }
-
-        .navbar a {
-        color: #e2e8f0;
-        text-decoration: none;
-        font-weight: 500;
-        transition: color 0.2s;
-        }
-        .navbar a:hover {
-        color: #63b3ed;
-        }
-
-
-    .navbar a:hover {
-      color: #63b3ed;
-    }
 
     .page {
       flex: 1; /* take remaining space */
@@ -81,19 +27,6 @@
       overflow-y: auto; /* scroll if content is tall */
     }
 
-    h1 {
-      font-size: 2.5rem;
-      color: #2d5fa4;
-      margin-bottom: 18px;
-      letter-spacing: 2px;
-    }
-
-    li, p {
-      font-size: 1.15rem;
-      color: #444;
-      margin-bottom: 16px;
-    }
-
     .image-container img {
       margin-left: 10px;
       border-radius: 50%;
@@ -103,9 +36,8 @@
 </head>
 <body>
   <nav class="navbar">
-    <span class="logo">Tesseau</span>
+    <span class="logo"><a href="/">Tesseau</a></span>
     <ul>
-      <li><a href="/">Home</a></li>
       <li><a href="/notes_stuff/reviewers.html">Reviewers</a></li>
       <li><a href="/reminders.html">Reminders</a></li>
       <li><a href="/about.html">About</a></li>
@@ -115,12 +47,12 @@
   <div class="page">
     <div class="container">
       <h1>About us</h1>
-      <p>Website for 11 - Tesseau (S.Y. 2025-2026)</p>
+      <p>Website for <strong>11 - Tesseau</strong> (S.Y. 2025-2026)</p>
       <span class="image-container">
         <img src="/assets/me.jpg" alt="Gerro Abarabar" width="135" height="135">
       </span>
-      <p>This is a simple website made by Gerro Abarabar of 11 - Tesla</p>
-      <p>Using the help of:</p>
+      <p>This is a simple website made by <strong>Gerro Abarabar of 11 - Tesla</strong></p>
+      <h2>Using the help of:</h2>
       <ul>
         <li>ChatGPT - for coding assistance and suggestions</li>
         <li>GitHub Copilot - for code completion and ideas</li>
@@ -131,6 +63,16 @@
         <p>&ldquo;I don't know how to code html. Thanks chatgpt lmao&rdquo;</p>
         <footer>&mdash; Gerro</footer>
       </blockquote>
+      <h2>Assets used</h2>
+      <ul>
+        <li>Mangro - Font</li>
+        <li>AniTypewriter - Font</li>
+      </ul>
+      <h2>Version Info</h2>
+      <ul>
+        <li>Last updated: June 2024</li>
+        <li>Version: 1.0.0</li>
+      </ul>
     </div>
   </div>
 </body>

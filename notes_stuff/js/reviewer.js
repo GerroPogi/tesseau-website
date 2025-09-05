@@ -113,6 +113,7 @@ fetch(`/api/reviewers/${id}`)
         })
         .then(res => res.json())
         .then(saved => {
+        console.log("Comment saved:", saved);
         addCommentToList(saved);
         form.reset();
         })
@@ -182,7 +183,7 @@ fetch(`/api/reviewers/${id}`)
                 content,
                 likes: 0,
                 date_added: new Date().toISOString(),
-                comment_id: comment.id
+                comment_id: comment.id || 0
             };
 
             fetch("/api/replies/new", {

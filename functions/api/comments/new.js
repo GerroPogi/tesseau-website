@@ -24,7 +24,7 @@ export async function onRequest(context) {
         const row = await tesseau_db.prepare(
             'INSERT INTO reviewer_comments (author, content, likes, date_added, reviewer_id) VALUES (?, ?, ?, ?, ?)'
         ).bind(author, content, likes, date_added, parseInt(reviewer_id, 10)).run();
-        const id = row.id;
+        const id = row.meta.last_row_id;
         console.log(`Comment inserted with id: ${id}`);
 
         return new Response(JSON.stringify({ success: true, id, author, content: content, likes, date_added, reviewer_id }), {

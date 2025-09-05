@@ -1,0 +1,74 @@
+@font-face {
+    font-family: 'AniTypewriter';
+    src: url(/fonts/AniTypewriter.ttf) format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Mangro';
+    src: url(/fonts/mangro.otf) format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    margin: 0;
+    font-family: 'AniTypewriter';
+    background: #C7B693;
+    color: #221e18;
+}
+.navbar {
+    background: #373229;
+    padding: 0.5em 2em;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.navbar .logo {
+    font-weight: 700;
+    font-size: 1.5em;
+    color: #fff;
+    margin-right: 2em;
+    letter-spacing: 2px;
+    font-family: 'Mangro', sans-serif;
+}
+.navbar ul {
+    list-style: none;
+    display: flex;
+    gap: 1.5em;
+    margin: 0;
+    padding: 0;
+}
+.navbar li {
+    display: inline;
+}
+.navbar a {
+    color: #fffaf0;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+    font-size: 1em;
+    font-family: "Mangro", sans-serif;
+}
+.navbar a:hover {
+    color: #caa65f;
+}
+.container {
+    max-width: 900px;
+    margin: 2em auto;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    padding: 2em 2.5em;
+}
+h1 {
+    font-size: 2.5em;
+    font-weight: 700;
+    margin-bottom: 0.5em;
+    color: #2d3748;
+}
+
+.hidden {
+    display: none;
+}

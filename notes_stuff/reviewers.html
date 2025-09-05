@@ -3,178 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <title>Tesseau Reviewers</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 1rem;
-      background: #f9fafb;
-    }
+  <link href = "/css/base.css" rel="stylesheet">
+  <link href = "css/reviewers.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    h1 {
-      color: #333;
-    }
-
-    ul#reviewers {
-      list-style: none;
-      padding: 0;
-      margin-top: 1rem;
-    }
-
-    ul#reviewers li {
-      padding: 0.5rem 1rem;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      margin: 0.4rem 0;
-    }
-
-    ul#reviewers li a {
-      text-decoration: none;
-      color: #0077cc;
-      font-weight: bold;
-    }
-
-    ul#reviewers li a:hover {
-      text-decoration: underline;
-    }
-
-    /* Filters & Search */
-    .filters {
-      display: flex;
-      gap: 0.8rem;
-      flex-wrap: wrap;
-      margin: 1rem 0;
-      padding: 0.8rem;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-    }
-
-    .filters input,
-    .filters select {
-      flex: 1;
-      padding: 0.6rem;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 0.9rem;
-    }
-
-    /* Form styling */
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 0.8rem;
-      margin-top: 1.5rem;
-      padding: 1rem;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-    }
-
-    /* Row of inputs */
-    .form-row {
-      display: flex;
-      gap: 0.8rem;
-      flex-wrap: wrap;
-    }
-
-    form input[type="text"],
-    form select,
-    form textarea {
-      flex: 1;
-      padding: 0.6rem;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 0.9rem;
-    }
-
-    form textarea {
-      min-height: 80px;
-      resize: vertical;
-    }
-
-    form select {
-      background: #fff;
-      cursor: pointer;
-    }
-
-    /* Buttons */
-    button {
-      padding: 0.6rem 1rem;
-      border: none;
-      border-radius: 5px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-
-    button#pickFile {
-      background: #6366f1;
-      color: white;
-    }
-
-    button#pickFile:hover {
-      background: #4f46e5;
-    }
-
-    button[type="submit"] {
-      background: #10b981;
-      color: white;
-      align-self: flex-start;
-    }
-
-    button[type="submit"]:hover {
-      background: #059669;
-    }
-
-    /* Picked files list */
-    #pickedFiles {
-      list-style: none;
-      padding: 0.5rem;
-      margin-top: 0.5rem;
-      background: #f1f5f9;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-    }
-
-    #pickedFiles li {
-      padding: 0.3rem 0.5rem;
-      font-size: 0.85rem;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    #pickedFiles li:last-child {
-      border-bottom: none;
-    }
-    .nav-link {
-      color: #fff;
-      text-decoration: none;
-      font-weight: bold;
-      padding: 0.5rem 0.8rem;
-      border-radius: 5px;
-      transition: background 0.2s;
-    }
-  </style>
 </head>
 <body>
-  <h1>Tesseau Reviewers</h1>
-  <!-- Navigation bar -->
-  <header>
-    <nav style="background: #6366f1; border-radius: 8px; padding: 0.5rem 1rem; margin-bottom: 1rem;">
-      <ul style="display: flex; gap: 2rem; list-style: none; margin: 0; padding: 0;">
-        <li><a href="/index.html" class="nav-link">Home</a></li>
-        <li><a href="reviewers.html" class="nav-link">Reviewers</a></li>
-        <li><a href="/reminders.html" class="nav-link">Reminders</a></li>
-        <li><a href="/about.html" class ="nav-link">About</a></li>
-      </ul>
-    </nav>
-    <style>
-      header nav ul li a:hover {
-        background: #4f46e5;
-      }
-    </style>
-  </header>
+  <nav class="navbar">
+    <span class="logo"><a href="/">Tesseau</a></span>
+    <ul>
+      <li><a href="/notes_stuff/reviewers.html">Reviewers</a></li>
+      <li><a href="/reminders.html">Reminders</a></li>
+      <li><a href="/about.html">About</a></li>
+    </ul>
+  </nav>
 
+  <div class = "container">
   <!-- 🔎 Search & Filters -->
   <div class="filters">
     <input type="text" id="search" placeholder="Search by title..." />
@@ -194,7 +38,13 @@
     <input type="date" id="filterDate" />
   </div>
 
-  <ul id="reviewers"></ul>
+  <ul id="reviewers" class="review-list"></ul>
+  <div class="pagination">
+
+    <button id="prevPage">←</button>
+    <span id="currentPage">1</span>
+    <button id="nextPage">→</button>
+  </div>
 
   <!-- Google Identity Services + API Loader -->
   <script src="https://apis.google.com/js/api.js"></script>
@@ -208,7 +58,6 @@
 
   <section>
     
-
     <!-- Picked Files -->
     <ul id="pickedFiles"></ul>
 
@@ -235,5 +84,6 @@
       <button type="submit" onclick="handleSubmit(event)">Submit</button>
     </form>
   </section>
+  </div>
 </body>
 </html>

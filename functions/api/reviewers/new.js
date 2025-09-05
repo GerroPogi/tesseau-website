@@ -11,8 +11,8 @@ export async function onRequestPost(context) {
         .run();
     console.log(`New data has been inputed: ${creator}, ${reviewer}, ${title}, ${subject}, ${description}`);
      // Fetch the last inserted row id
-    const insertedId  = row?.id;
-    
+    const insertedId  = row.meta.last_row_id;
+    console.log(`Inserted row:`, row);
 
     console.log(`New reviewer inserted with id=${insertedId}`);
 

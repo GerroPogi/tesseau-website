@@ -226,6 +226,36 @@ header p {
 .toggle-replies:hover {
   text-decoration: underline;
 }
+/* Mobile responsive sidebar */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column; /* stack sidebar below header */
+  }
+
+  .sidebar {
+    width: 100%;              /* full width instead of 220px */
+    border-right: none;       /* remove right border */
+    border-top: 1px solid #ddd;
+    display: flex;            /* horizontal tabs */
+    overflow-x: auto;         /* allow scroll if too many tabs */
+  }
+
+  .tab {
+    flex: 1;                  /* tabs spread evenly */
+    text-align: center;
+    border-bottom: none;      /* remove old vertical dividers */
+    border-right: 1px solid #e5e0d8; /* add divider between tabs */
+  }
+
+  .tab:last-child {
+    border-right: none;       /* no divider on last */
+  }
+
+  .tab.active {
+    border-left: none;        /* remove old vertical highlight */
+    border-bottom: 3px solid #9e8d6e; /* underline instead */
+  }
+}
 
 
   </style>

@@ -6,3 +6,28 @@
     margin-top: -15px;
     margin-left: 20px;
 }
+
+
+.trash-icon, .edit-icon, .reminder-header{
+    cursor: pointer;
+    display: inline-block;
+}
+
+.trash-icon, .edit-icon{
+    float: right;
+    margin-right: 10px;
+    margin-top: 5px;
+}
+
+.trash-icon p, .edit-icon p{
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background: #f1f1f1;
+    font-size: 20px;
+    margin-left: 10px;
+    margin-top: 0px;
+}
+.trash-icon p:hover, .edit-icon p:hover{
+    background: #e1e1e1;
+}

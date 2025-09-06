@@ -72,3 +72,14 @@ h1 {
 .hidden {
     display: none;
 }
+
+@media (max-width: 768px) {
+    .navbar .logo{
+        margin-right: 1em;
+        margin-left: -0.5em;
+    }
+    select{
+        max-width: 100%;
+        margin-top: 10px;
+    }
+}

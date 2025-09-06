@@ -3,4 +3,4 @@ export async function onRequestGet(context) {
     return new Response(JSON.stringify(results.results), {
         headers: { "Content-Type": "application/json" },
     });
-}
+}       

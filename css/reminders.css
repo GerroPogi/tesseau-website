@@ -1,0 +1,8 @@
+.reminder-header:hover {
+    text-decoration: underline;
+}
+
+.reminder-detail{
+    margin-top: -15px;
+    margin-left: 20px;
+}

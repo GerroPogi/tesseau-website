@@ -308,14 +308,16 @@ function addReminder(reminder){
 
     reminderDiv.innerHTML = `
         <div class="reminder-header-wrapper">
-            <div class="reminder-header" id="reminder-header-${reminder.id}">
-                <h3 contenteditable="false">${title}</h3>
-            </div>
-            ${ admin ? 
-            `<div class="reminder-detail-button trash-icon" id="reminder-details-${reminder.id}-delete">
+            <div class="reminder-header" id="reminder-header-${reminder.id}" style="display: flex; align-items: center; gap: 8px;">
+                <span contenteditable="false" class="reminder-title" style="flex: 1;">${title}</span>
+                ${ admin ? `<div class="reminder-title-button">
+                    <button onclick="editReminderDetail(${reminder.id}, 'title', '${title.replace(/'/g, "\\'")}')">Edit</button>
+                    
+                    </div>
+                <div class="reminder-detail-button trash-icon" id="reminder-details-${reminder.id}-delete">
                 <button onclick="deleteReminder(${reminder.id})">&#x1F5D1</button>
-            </div>` : ""
-            }
+            </div>` : "" }
+            </div>
         </div>  
         <div class="reminder-details" id="reminder-details-${reminder.id}-description" style="display: none;">
             <div>

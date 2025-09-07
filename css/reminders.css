@@ -48,11 +48,16 @@
     font-size: 2em;
 }
 
-.reminder-header-wrapper {
+.reminder-header-wrapper .reminder-title-button{
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
+
+.reminder-title-button{
+    margin: 8px;
+}
+
 
 
 .reminder-header{
@@ -77,4 +82,14 @@
     /* margin-bottom: 20px; */
     border: 1px solid #ccc;
     padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    
+}
+
+.reminder-title{
+    font-size: 1em;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #2d3748;
 }

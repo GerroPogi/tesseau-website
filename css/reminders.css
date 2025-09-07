@@ -1,33 +1,80 @@
-.reminder-header:hover {
+.reminder-detail {
+  margin-left: 20px;
+}
+
+.reminder-details-header{
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.reminder-detail-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* pushes span left, button right */
+}
+
+
+.reminder-details {
+    margin-top: 10px;
+    display: flex;
+    align-items: center; /* vertically aligns text and button */
+    gap: 10px; /* spacing between text and button */
+}
+
+.reminder-detail-button {
+  margin-left: auto; /* ensures button is pushed right */
+}
+
+
+.reminder-header:hover{
     text-decoration: underline;
 }
 
-.reminder-detail{
-    margin-top: -15px;
-    margin-left: 20px;
+.active-section{
+    font-weight: bold;
+}
+.section{
+    cursor: pointer;
+}
+
+.section:hover{
+    text-decoration: underline;
+}
+
+.trash-icon, .edit-icon{
+    display:flex;
+    justify-content: flex-end; /* pushes button to right */
+    margin-top: 5px; /* optional */
+    font-size: 2em;
+}
+
+.reminder-header-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 
-.trash-icon, .edit-icon, .reminder-header{
+.reminder-header{
     cursor: pointer;
     display: inline-block;
 }
 
-.trash-icon, .edit-icon{
-    float: right;
-    margin-right: 10px;
-    margin-top: 5px;
+.reminder-subject{
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: gray;
+    margin-left: 10px;
+    cursor: pointer;
 }
 
-.trash-icon p, .edit-icon p{
-    padding: 5px 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    background: #f1f1f1;
-    font-size: 20px;
-    margin-left: 10px;
-    margin-top: 0px;
+.reminder-subject:hover{
+    text-decoration: underline;
 }
-.trash-icon p:hover, .edit-icon p:hover{
-    background: #e1e1e1;
+
+.reminder-page{
+    /* margin-top: 10px; */
+    /* margin-bottom: 20px; */
+    border: 1px solid #ccc;
+    padding: 10px;
 }

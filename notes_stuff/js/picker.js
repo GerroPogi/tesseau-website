@@ -1,5 +1,5 @@
 // === CONFIG ===
-const developerKey = "AIzaSyCdVmlenk3Qvp1h0TSsIN-_YSN-8IpiQFk";
+const developerKey = "";
 const clientId = "661671724651-g991at5eiurrroi8aojjnmj8jit9agas.apps.googleusercontent.com";
 const appId = "661671724651";
 const scope = "https://www.googleapis.com/auth/drive.file";

@@ -171,7 +171,7 @@ function updateList(){
     });
 }
 
-
+// Normal subject reminders
 function handleReminders(data){
     console.log("data", data);
     if (data.length === 0){
@@ -181,9 +181,36 @@ function handleReminders(data){
     data.forEach(reminder => {
         console.log("reminder", reminder);
         addReminder(reminder,isDateValid(reminder.deadline));
+    });
+    addCPE();
+}
 
+// CPE
+
+function addCPE(){
+    fetch(`api/reminders/cpe`)
+    .then(response => response.json())
+    .then(data => {
+        const CPESubjectDiv= getSubjectDiv("Check-Point Exams (CPE)");
+        
+        const newData= data.map(reminder => {
+            return {
+                
+                ...reminder,
+                subject: "Check-Point Exams (CPE)"
+            };
+        });
+        console.log("newData", newData);
+
+        newData.forEach(reminder => {
+            console.log("reminder", reminder);
+            addReminder(reminder,isDateValid(reminder.deadline));
+        });
+
+        document.getElementById("reminders-list").appendChild(CPESubjectDiv);
     });
 }
+
 
 
 // Helper: create a header + page pair (valid or invalid reminders)

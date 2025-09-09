@@ -199,7 +199,7 @@ function addCPE(){
             return {
                 
                 ...reminder,
-                title: subject,
+                title: reminder.subject,
                 subject: "Check-Point Exams (CPE)",
             };
         });
@@ -218,13 +218,13 @@ function addLT(){
     fetch(`api/reminders/lt`)
     .then(response => response.json())
     .then(data => {
-        const CPESubjectDiv= getSubjectDiv("Long Tests");
+        const LTSubjectDiv= getSubjectDiv("Long Tests");
         
         const newData= data.map(reminder => {
             return {
                 
                 ...reminder,
-                title: subject,
+                title: reminder.subject,
                 subject: "Long Tests",
             };
         });
@@ -235,7 +235,7 @@ function addLT(){
             addReminder(reminder,isDateValid(reminder.deadline));
         });
 
-        document.getElementById("reminders-list").appendChild(CPESubjectDiv);
+        document.getElementById("reminders-list").appendChild(LTSubjectDiv);
     });
 }
 

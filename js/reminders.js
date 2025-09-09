@@ -164,6 +164,8 @@ function updateList(){
             return;
         }
         handleReminders(data);
+        addCPE();
+        addLT();
     })
     .catch(error => {
         console.error("Error fetching reminders:", error);
@@ -183,8 +185,7 @@ function handleReminders(data){
         console.log("reminder", reminder);
         addReminder(reminder,isDateValid(reminder.deadline));
     });
-    addCPE();
-    addLT();
+    
 }
 
 // CPE

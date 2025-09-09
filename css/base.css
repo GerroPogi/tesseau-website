@@ -23,34 +23,79 @@ body {
     padding: 0.5em 2em;
     display: flex;
     align-items: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
 }
-.navbar .logo {
+.nav-link#tesseau {
     font-weight: 700;
-    font-size: 1.5em;
+    font-size: 2em;
     color: #fff;
-    margin-right: 2em;
+    margin-right: 1em;
     letter-spacing: 2px;
     font-family: 'Mangro', sans-serif;
 }
-.navbar ul {
+
+.navbar li {
     list-style: none;
     display: flex;
     gap: 1.5em;
-    margin: 0;
+    margin: 0 1em;
     padding: 0;
 }
 .navbar li {
-    display: inline;
+    display: inline-block;
+    position: relative;
 }
-.navbar a {
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%; /* below parent */
+  left: 0;
+  background: #584f3d;
+  list-style: none;
+  margin: 0;
+  padding: 0.5em 0;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  min-width: 180px;
+  z-index: 1000;
+}
+
+.dropdown-menu li {
+  padding: 0.5em 1em;
+}
+
+.dropdown-menu a {
+  color: #fffaf0;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-menu a:hover {
+  background: #504733;
+  color: #ffaa00;
+}
+
+/* Show dropdown on hover */
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.nav-link {
     color: #fffaf0;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s;
-    font-size: 1em;
+    font-size: 1.5em;
     font-family: "Mangro", sans-serif;
+    cursor:pointer;
 }
+
+.nav-link:hover{
+    text-decoration: underline;
+    color: #ffaa00;
+}
+
 .navbar a:hover {
     color: #caa65f;
 }
@@ -74,7 +119,7 @@ h1 {
 }
 
 @media (max-width: 768px) {
-    .navbar .logo{
+    .navbar .nav-link#tesseau{
         margin-right: 1em;
         margin-left: -0.5em;
     }

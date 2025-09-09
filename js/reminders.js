@@ -67,6 +67,13 @@ function add_addButton(){
     });
 }
 
+function isDateValid(date){
+    const inputDate = new Date(date);
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    return inputDate > today;
+}
+
 document.getElementById("tesla").onclick = () => {
     const params = new URLSearchParams(window.location.search);
     const newParams = new URLSearchParams();

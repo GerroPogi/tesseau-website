@@ -9,15 +9,18 @@
 
 </head>
 <body>
-  <nav class="navbar">
-    <span class="logo"><a href="/">Tesseau</a></span>
-    <ul>
-      <li><a href="/notes_stuff/reviewers.html">Reviewers</a></li>
-      <li><a href="/reminders.html">Reminders</a></li>
-      <li><a href="/about.html">About</a></li>
-    </ul>
-  </nav>
-
+    <div id="navbar-placeholder"></div>
+  <script>
+  fetch("/navbar.html")
+    .then(res => res.text())
+    .then(html => {
+        document.getElementById("navbar-placeholder").innerHTML = html;
+        // Manually run navbar.js after injection
+        const script = document.createElement("script");
+        script.src = "/js/navbar.js";
+        document.body.appendChild(script);
+    });
+  </script>
   <div class = "container">
   <!-- 🔎 Search & Filters -->
   <div class="filters">
@@ -25,17 +28,22 @@
     <input type="text" id="filterCreator" placeholder="Filter by creator..." />
     <select id="filterSubject">
       <option value="">Filter by subject</option>
-      <option>Intro to Philosophy</option>
-      <option>Earth and Space Science 1</option>
-      <option>Finite Math 1</option>
-      <option>English</option>
-      <option>Filipino</option>
-      <option>General Math</option>
-      <option>General Science</option>
-      <option>Life and Career Skills</option>
-      <option>Pag-aaral ng Kasaysayan at Lipunang Pilipino</option>
+      <option value = "itp">Intro to Philosophy</option>
+      <option value = "ess">Earth and Space Science 1</option>
+      <option value = "fm">Finite Math 1</option>
+      <option value = "e">English</option>
+      <option value = "f">Filipino</option>
+      <option value = "gm">General Math</option>
+      <option value = "gs">General Science</option>
+      <option value = "lcs">Life and Career Skills</option>
+      <option value = "k">Pag-aaral ng Kasaysayan at Lipunang Pilipino</option>
     </select>
     <input type="date" id="filterDate" />
+    <select id="filterSort">
+      <option value="newestFirst">Newest First</option>
+      <option value="oldestFirst">Oldest First</option>
+      <option value="relevance">Relevance</option>
+    </select>
   </div>
 
   <ul id="reviewers" class="review-list"></ul>
@@ -45,12 +53,13 @@
     <span id="currentPage">1</span>
     <button id="nextPage">→</button>
   </div>
-
+<!--TODO: Uncomment this: -->
   <!-- Google Identity Services + API Loader -->
-  <script src="https://apis.google.com/js/api.js"></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- <script src="https://apis.google.com/js/api.js"></script> -->
+  <!-- <script src="https://accounts.google.com/gsi/client" r></script> -->
 
-  <script src = "js/picker.js"></script>
+
+  <!-- <script src = "js/picker.js"></script> -->
 
   <!-- Review submission and viewing -->
   <script src="js/handleSubmit.js"></script>

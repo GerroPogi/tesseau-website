@@ -9,17 +9,25 @@
     <meta name="description" content="Tesseau is a section in FEU Roosevelt Rodriguez Campus. This website is made for its section to share study notes and reminders.">
     <meta name="keywords" content="reviewers, study notes, reminders, Tesseau, students, FEU Roosevelt, Rodriguez Campus">
     <meta name="author" content="Gerro Abarabar">
-
+    <script src = "js/admin.js"></script>
+    
 </head>
 <body>
-    <nav class="navbar">
-    <span class="logo"><a href="/">Tesseau</a></span>
-    <ul>
-      <li><a href="/notes_stuff/reviewers.html">Reviewers</a></li>
-      <li><a href="/reminders.html">Reminders</a></li>
-      <li><a href="/about.html">About</a></li>
-    </ul>
-  </nav>
+    <div id="navbar-placeholder"></div>
+    <script>
+    fetch("/navbar.html")
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById("navbar-placeholder").innerHTML = html;
+            // Manually run navbar.js after injection
+            const script = document.createElement("script");
+            script.src = "/js/navbar.js";
+            document.body.appendChild(script);
+        });
+
+    </script>
+    <!-- TODO: Make it possible to make posts from admin panel -->
+    <!-- TODO: Save admin powers in link-->
     <div class="container">
         <h1>Welcome to Tesseau</h1>
         <div class="posts">

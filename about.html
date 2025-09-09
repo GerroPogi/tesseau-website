@@ -35,15 +35,18 @@
   </style>
 </head>
 <body>
-  <nav class="navbar">
-    <span class="logo"><a href="/">Tesseau</a></span>
-    <ul>
-      <li><a href="/notes_stuff/reviewers.html">Reviewers</a></li>
-      <li><a href="/reminders.html">Reminders</a></li>
-      <li><a href="/about.html">About</a></li>
-    </ul>
-  </nav>
-
+  <div id="navbar-placeholder"></div>
+  <script>
+  fetch("/navbar.html")
+      .then(res => res.text())
+      .then(html => {
+          document.getElementById("navbar-placeholder").innerHTML = html;
+          // Manually run navbar.js after injection
+          const script = document.createElement("script");
+          script.src = "/js/navbar.js";
+          document.body.appendChild(script);
+      });
+  </script>
   <div class="page">
     <div class="container">
       <h1>About us</h1>

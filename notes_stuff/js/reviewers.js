@@ -3,6 +3,8 @@ const REVIEWERS_PER_PAGE = 10;
 let current_page= 0;
 let max_page;
 
+console.log("Reviewers loading")
+
 // === FETCH REVIEWERS ===
 function renderReviewers(list) {
     const reviewers = document.getElementById("reviewers");
@@ -26,18 +28,30 @@ fetch("/api/reviewers")
 // === FILTERS & SEARCH ===
 function applyFilters() {
     current_page = parseInt(urlParams.get("page") || 1, 10);
-    const search = document.getElementById("search").value.toLowerCase();
+    const search = document.getElementById("search").value.toLowerCase() ;
+    
     const creator = document.getElementById("filterCreator").value.toLowerCase();
+    document.getElementById("filterSubject").value = document.getElementById("filterSubject").value || urlParams.get("subject")
     const subject = document.getElementById("filterSubject").value;
     const date = document.getElementById("filterDate").value;
+    const sort = document.getElementById("filterSort").value;
+    console.log(subject)
 
-    const filtered = allReviewers.filter(r => {
+    let filtered = allReviewers;
+    if(sort =="newestFirst") filtered.sort((a, b) => new Date(b.date_added) - new Date(a.date_added));
+    if(sort =="oldestFirst") filtered.sort((a, b) => new Date(a.date_added) - new Date(b.date_added));
+    if(sort =="relevance") {
+        filtered.sort((a, b) => b.rating - a.rating);
+    }
+    filtered = allReviewers.filter(r => {
     const matchesSearch = r.title.toLowerCase().startsWith(search);
     const matchesCreator = creator ? r.creator.toLowerCase().includes(creator) : true;
     const matchesSubject = subject ? r.subject === subject : true;
     const matchesDate = date ? r.date_added && r.date_added.startsWith(date) : true;
     return matchesSearch && matchesCreator && matchesSubject && matchesDate;
     }).splice((current_page - 1) * REVIEWERS_PER_PAGE, REVIEWERS_PER_PAGE*current_page);
+    console.log(filtered)
+    
 
     renderReviewers(filtered);
     setupPagination();
@@ -81,3 +95,4 @@ document.getElementById("search").addEventListener("input", applyFilters);
 document.getElementById("filterCreator").addEventListener("input", applyFilters);
 document.getElementById("filterSubject").addEventListener("change", applyFilters);
 document.getElementById("filterDate").addEventListener("change", applyFilters);
+document.getElementById("filterSort").addEventListener("change", applyFilters);

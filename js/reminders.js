@@ -184,6 +184,7 @@ function handleReminders(data){
         addReminder(reminder,isDateValid(reminder.deadline));
     });
     addCPE();
+    addLT();
 }
 
 // CPE
@@ -212,6 +213,32 @@ function addCPE(){
         document.getElementById("reminders-list").appendChild(CPESubjectDiv);
     });
 }
+
+function addLT(){
+    fetch(`api/reminders/lt`)
+    .then(response => response.json())
+    .then(data => {
+        const CPESubjectDiv= getSubjectDiv("Long Tests");
+        
+        const newData= data.map(reminder => {
+            return {
+                
+                ...reminder,
+                title: subject,
+                subject: "Long Tests",
+            };
+        });
+        console.log("newData", newData);
+
+        newData.forEach(reminder => {
+            console.log("reminder", reminder);
+            addReminder(reminder,isDateValid(reminder.deadline));
+        });
+
+        document.getElementById("reminders-list").appendChild(CPESubjectDiv);
+    });
+}
+
 
 
 

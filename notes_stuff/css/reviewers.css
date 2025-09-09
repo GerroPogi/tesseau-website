@@ -127,6 +127,7 @@ button[type="submit"]:hover {
     border: 1px solid #ddd;
     border-radius: 6px;
 }
+    
 
 #pickedFiles li {
     padding: 0.3rem 0.5rem;

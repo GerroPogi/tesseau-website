@@ -67,12 +67,33 @@ function add_addButton(){
     });
 }
 
-function isDateValid(date){
-    const inputDate = new Date(date);
+function isDateValid(dateStr) {
+    if (!dateStr || typeof dateStr !== "string") {
+        console.warn("isDateValid called with invalid dateStr:", dateStr);
+        return false;
+    }
+
+    // Expecting format YYYY-MM-DD
+    const parts = dateStr.split("-");
+    if (parts.length !== 3) {
+        console.warn("isDateValid: unexpected date format", dateStr);
+        return false;
+    }
+
+    const [year, month, day] = parts.map(Number);
+    const inputDate = new Date(year, month - 1, day); // local midnight
+
+    if (isNaN(inputDate.getTime())) {
+        console.warn("isDateValid: invalid parsed date", dateStr);
+        return false;
+    }
+
     const today = new Date();
-    today.setHours(0,0,0,0);
-    return inputDate > today;
+    today.setHours(0, 0, 0, 0);
+
+    return inputDate >= today;
 }
+
 
 document.getElementById("tesla").onclick = () => {
     const params = new URLSearchParams(window.location.search);
@@ -158,41 +179,74 @@ function handleReminders(data){
         return;
     }
     data.forEach(reminder => {
-
-        addReminder(reminder);
+        console.log("reminder", reminder);
+        addReminder(reminder,isDateValid(reminder.deadline));
 
     });
 }
 
-function getSubjectDiv(subject){
-    if (document.getElementById(`reminder-${subject}`)){
-        return document.getElementById(`reminder-page-${subject}`);
-    } else{
-        let subjectContainer = document.createElement("div");
-        subjectContainer.id = `reminder-container-${subject}`;
-        subjectContainer.classList.add("reminder-container");
-        
 
-        let subjectDiv = document.createElement("div");
-        subjectDiv.classList.add("reminder-subject");
-        subjectDiv.id = `reminder-${subject}`;
-        subjectDiv.innerHTML = `<h2>${subject}</h2>`;
+// Helper: create a header + page pair (valid or invalid reminders)
+function createReminderSection(subject, type, title) {
+    const header = document.createElement("div");
+    header.classList.add("reminder-page-header");
+    header.innerHTML = `<h3>${title}</h3>`;
 
-        subjectContainer.appendChild(subjectDiv);
-        reminder_page= document.createElement("div");
-        reminder_page.classList.add("reminder-page");
-        reminder_page.id = `reminder-page-${subject}`;
-        
+    const page = document.createElement("div");
+    page.classList.add("reminder-page", "hidden");
+    page.id = `reminder-page-${subject}-${type}`;
+    page.innerHTML = `<div class="reminder-page-container"></div>`;
 
-        subjectContainer.appendChild(reminder_page);
-        document.getElementById("reminders-list").appendChild(subjectContainer);
-        subjectDiv.onclick = (e) => {
-            const reminders = document.getElementById(`reminder-page-${subject}`);
-            reminders.classList.toggle("hidden");
-        };
-        return subjectContainer;
-    }
+    // Toggle page visibility on header click
+    header.onclick = () => page.classList.toggle("hidden");
+
+    return { header, page };
 }
+
+// Main: create subject container
+function getSubjectDiv(subject) {
+    // If already exists, just return it
+    let existing = document.getElementById(`reminder-container-${subject}`);
+    if (existing) return existing;
+
+    // Container for subject
+    const subjectContainer = document.createElement("div");
+    subjectContainer.id = `reminder-container-${subject}`;
+    subjectContainer.classList.add("reminder-container");
+
+    // Subject clickable title
+    const subjectDiv = document.createElement("div");
+    subjectDiv.classList.add("reminder-subject");
+    subjectDiv.id = `reminder-${subject}`;
+    subjectDiv.innerHTML = `<h2>${subject}</h2>`;
+    subjectContainer.appendChild(subjectDiv);
+
+    // Wrapper (holds valid + invalid sections)
+    const wrapper = document.createElement("div");
+    wrapper.classList.add("reminder-wrapper", "hidden");
+    wrapper.id = `reminder-wrapper-${subject}`;
+    subjectContainer.appendChild(wrapper);
+
+    // Create "valid" section
+    const validSection = createReminderSection(subject, "valid", "Current reminders");
+    wrapper.appendChild(validSection.header);
+    wrapper.appendChild(validSection.page);
+
+    // Create "invalid" section
+    const invalidSection = createReminderSection(subject, "invalid", "Past reminders");
+    wrapper.appendChild(invalidSection.header);
+    wrapper.appendChild(invalidSection.page);
+
+    // Toggle wrapper when subject header is clicked
+    subjectDiv.onclick = () => wrapper.classList.toggle("hidden");
+
+    // Add to main list
+    document.getElementById("reminders-list").appendChild(subjectContainer);
+
+    return subjectContainer;
+}
+
+
 
 function deleteReminder(id){
     if (!admin){
@@ -231,7 +285,29 @@ function editReminderDetail(id, field, currentValue) {
         alert("You are not authorized to edit reminders.");
         return;
     }
-    let newValue = prompt(`Edit ${field}:`, currentValue);
+    let newValue;
+    switch (field) {
+        case "title":
+            newValue = prompt("Edit Title:", currentValue);
+            break;
+        case "description":
+            newValue = prompt("Edit Description:", currentValue);
+            break;
+        case "deadline":
+            newValue = prompt("Edit Deadline (YYYY-MM-DD):", currentValue);
+            break;
+        case "type":
+            newValue = prompt(
+                "Edit Type of Activity:\nOptions: groupings, lt, cpe, pt, las, activity",
+                currentValue
+            );
+            break;
+        case "reference":
+            newValue = prompt("Edit Reference (Optional):", currentValue);
+            break;
+        default:
+            newValue = prompt(`Edit ${field}:`, currentValue);
+    }
     if (newValue === null || newValue === currentValue) return;
     if (field === "deadline") {
         // Check for valid date format (YYYY-MM-DD)
@@ -302,10 +378,11 @@ function editReminderDetail(id, field, currentValue) {
     });
 }
 
-function addReminder(reminder){ 
+function addReminder(reminder,isValid){ 
     const subjectDiv = getSubjectDiv(reminder.subject);
-    const subjectPageDiv = document.getElementById(`reminder-page-${reminder.subject}`);
-    subjectPageDiv.classList.add("hidden");
+    const subjectPageDiv = document.getElementById(`reminder-page-${reminder.subject}-${isValid ? "valid" : "invalid"}`);
+    const subjectContainerDiv = subjectPageDiv.querySelector(".reminder-page-container");
+    // subjectPageDiv.classList.add("hidden");
 
     const reminderDiv = document.createElement("div");
     reminderDiv.classList.add("reminder");
@@ -379,7 +456,7 @@ function addReminder(reminder){
         }
     `;
    
-    subjectPageDiv.appendChild(reminderDiv);
+    subjectContainerDiv.appendChild(reminderDiv);
     const subjectHeader = document.getElementById(`reminder-header-${reminder.id}`);
     subjectHeader.onclick =() => {
         const details = document.getElementById(`reminder-${reminder.id}`).querySelectorAll(".reminder-details");

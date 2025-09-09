@@ -77,14 +77,26 @@
     text-decoration: underline;
 }
 
-.reminder-page{
-    /* margin-top: 10px; */
-    /* margin-bottom: 20px; */
+.reminder-page-header{
+    cursor: pointer;
+    
+}
+
+.reminder-page-header:hover{
+    text-decoration: underline;
+}
+
+.reminder-container{
     border: 1px solid #ccc;
     padding: 10px;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    
+}
+
+.reminder-page-container{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 20px;
 }
 
 .reminder-title{
@@ -92,4 +104,10 @@
     font-weight: bold;
     margin-bottom: 5px;
     color: #2d3748;
+}
+
+.reminder-wrapper{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 20px;
 }

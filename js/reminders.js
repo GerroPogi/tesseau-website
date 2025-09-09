@@ -198,7 +198,8 @@ function addCPE(){
             return {
                 
                 ...reminder,
-                subject: "Check-Point Exams (CPE)"
+                title: subject,
+                subject: "Check-Point Exams (CPE)",
             };
         });
         console.log("newData", newData);

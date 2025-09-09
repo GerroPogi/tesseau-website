@@ -35,6 +35,7 @@ function add_addButton(){
                 <option value="pt">Peformance Task</option>
                 <option value="las">Learning Activity Sheet (LAS)</option>
                 <option value="activity">Activity</option>
+                <option value="requirement">Requirement</option>
             </select><br>
             <button type="submit">Add Reminder</button>
         </form>
@@ -305,6 +306,7 @@ const ACTIVITIES={
     "pt": "Performance Task",
     "las": "Learning Activity Sheet (LAS)",
     "activity": "Activity",
+    "requirement":"Requirement"
 }
 
 function editReminderDetail(id, field, currentValue) {

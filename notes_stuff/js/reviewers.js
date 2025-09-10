@@ -25,14 +25,26 @@ fetch("/api/reviewers")
     max_page = Math.ceil(allReviewers.length / REVIEWERS_PER_PAGE);
     });
 
+const subjectDict = {
+    "": "",
+    "itp": "Intro to Philosophy",
+    "ess": "Earth and Space Science 1",
+    "fm": "Finite Math 1",
+    "e": "English",
+    "f": "Filipino",
+    "gm": "General Math",
+    "gs": "General Science",
+    "lcs": "Life and Career Skills",
+    "k": "Pag-aaral ng Kasaysayan at Lipunang Pilipino",
+};
+
 // === FILTERS & SEARCH ===
 function applyFilters() {
     current_page = parseInt(urlParams.get("page") || 1, 10);
     const search = document.getElementById("search").value.toLowerCase() ;
     
     const creator = document.getElementById("filterCreator").value.toLowerCase();
-    document.getElementById("filterSubject").value = document.getElementById("filterSubject").value || urlParams.get("subject")
-    const subject = document.getElementById("filterSubject").value;
+    const subject = subjectDict[document.getElementById("filterSubject").value || urlParams.get("subject")];
     const date = document.getElementById("filterDate").value;
     const sort = document.getElementById("filterSort").value;
     console.log(subject)

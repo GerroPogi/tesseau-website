@@ -119,10 +119,28 @@ h1 {
 }
 
 @media (max-width: 768px) {
+
     .navbar .nav-link#tesseau{
-        margin-right: 1em;
+        margin-right: -1em;
         margin-left: -0.5em;
+        font-size: 1.5em;
     }
+
+    .navbar a{
+        font-size: 1em;
+    }
+
+    .navbar li{
+        font-size: 1em;
+        display: inline-block;
+        margin-left: 0.2em;
+        margin-right: 0.2em;
+    }
+
+    .dropdown{
+        margin-left: 0.5em;
+    }
+
     select{
         max-width: 100%;
         margin-top: 10px;

@@ -61,7 +61,7 @@
   <script src = "js/picker.js"></script>
 
   <!-- Review submission and viewing -->
-  <script src="js/handleSubmit.js"></script>
+  
   <script src = "js/reviewers.js"></script>
 
   <section>
@@ -70,11 +70,11 @@
     <ul id="pickedFiles"></ul>
 
     <!-- Review submit form -->
-    <form>
+    <form id="reviewForm">
       <div class="form-row">
-        <input type="text" id="name" placeholder="Enter your name" required />
-        <input type="text" id="title" placeholder="Enter your title"  required />
-        <select id="subject" required >
+        <input type="text" id="name" placeholder="Enter your name">
+        <input type="text" id="title" placeholder="Enter your title">
+        <select id="subject">
           <option value="">-- Select Subject --</option>
           <option>Intro to Philosophy</option>
           <option>Earth and Space Science 1</option>
@@ -87,10 +87,12 @@
           <option>Pag-aaral ng Kasaysayan at Lipunang Pilipino</option>
         </select>
       </div>
-      <textarea id="description" placeholder="Enter your description" required ></textarea>
+      <textarea id="description" placeholder="Enter your description"></textarea>
       <button type="button" id="pickFile" onclick="handleAuthClick()">Pick Files</button>
-      <button type="submit" onclick="handleSubmit(event)">Submit</button>
+      <button type="submit">Submit</button>
     </form>
+    <script src="js/handleSubmit.js"></script>
+
   </section>
   </div>
 </body>

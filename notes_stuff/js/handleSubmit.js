@@ -1,9 +1,14 @@
 function handleSubmit(event) {
+    console.log("submitting");
     event.preventDefault();
     const name = document.getElementById("name").value;
     const title = document.getElementById("title").value;
     const subject = document.getElementById("subject").value;
     const description = document.getElementById("description").value;
+    if (!name || !title || !subject || !description) {
+        alert("Please fill all the fields before submitting.");
+        return;
+    }
 
     const reviewData = {
         creator: name,
@@ -33,3 +38,5 @@ function handleSubmit(event) {
     })
     .catch(err => console.error('Error:', err));
 }
+
+document.getElementById("reviewForm").addEventListener("submit", handleSubmit);

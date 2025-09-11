@@ -104,7 +104,7 @@ document.getElementById("tesla").onclick = () => {
             newParams.set(key, value);
         }
     }
-    const newUrl = `reminders?section=tesla&${newParams.toString()}`;
+    const newUrl = `?section=tesla&${newParams.toString()}`;
     window.location.href =newUrl;
 }
 document.getElementById("rousseau").onclick = () => {
@@ -115,7 +115,7 @@ document.getElementById("rousseau").onclick = () => {
             newParams.set(key, value);
         }
     }
-    const newUrl = `reminders?section=rousseau&${newParams.toString()}`;
+    const newUrl = `?section=rousseau&${newParams.toString()}`;
     window.location.href =newUrl;
 }
 

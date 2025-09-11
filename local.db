@@ -1,9 +1,7 @@
-CREATE TABLE reminders (
+CREATE TABLE posts (
   id integer primary key autoincrement,
-  subject text not null,
   title text not null,
-  deadline datetime not null,
+  author text not null,
   date_added datetime not null,
-  description datetime not null,
-  reference text
+  content datetime not null
   )

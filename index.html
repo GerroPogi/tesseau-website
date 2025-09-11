@@ -10,6 +10,9 @@
     <meta name="keywords" content="reviewers, study notes, reminders, Tesseau, students, FEU Roosevelt, Rodriguez Campus">
     <meta name="author" content="Gerro Abarabar">
     <script src = "js/admin.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
+
+
     
 </head>
 <body>
@@ -27,11 +30,22 @@
 
     </script>
     <!-- TODO: Make it possible to make posts from admin panel -->
-    <!-- TODO: Save admin powers in link-->
+
+
     <div class="container">
         <h1>Welcome to Tesseau</h1>
-        <div class="posts">
+        <div class="posts" id ="posts">
             <div class="section-title">Posts</div>
+            <div id = "add-post-container" class = "hidden">
+                <h2>Add Post</h2>
+                <form id="add-post-form">
+                    <input type="text" id="author" name="author" placeholder="Author"><br>
+                    <input type="text" id="title" name="title" placeholder="Titile"><br>
+                    <textarea id="content" name="content" placeholder="Content"></textarea><br>
+                    <input type="file" id="file" name="file" accept="image/*"><br>
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
             <div class="post">
                 <div class="post-title">New Reminders Section!</div>
                 <span class="post-date">September 9, 2025</span>
@@ -58,5 +72,6 @@
             </div>
         </div>
     </div>
+    <script src = "js/index.js"></script>
 </body>
 </html>

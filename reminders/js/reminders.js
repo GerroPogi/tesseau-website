@@ -154,7 +154,7 @@ isAdmin().then(data => {
 });
 
 function updateList(){
-    fetch(`api/reminders${URLParams.get("section") ? `/${URLParams.get("section")}` : ""}`)
+    fetch(`/api/reminders${URLParams.get("section") ? `/${URLParams.get("section")}` : ""}`)
     .then(response => response.json())
     .then(data => {
         const reminders_list = document.getElementById("reminders-list");
@@ -163,8 +163,13 @@ function updateList(){
             reminders_list.innerHTML = "<p>No reminders found.</p>";
             return;
         }
+        console.log("Handling reminders");
         handleReminders(data);
+        console.log("Handling cpe");
+
         addCPE();
+        console.log("Handling lt");
+
         addLT();
     })
     .catch(error => {

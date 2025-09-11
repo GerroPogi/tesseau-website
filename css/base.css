@@ -15,7 +15,8 @@
 body {
     margin: 0;
     font-family: 'AniTypewriter';
-    background: #C7B693;
+    background: url("/assets/bg.png") repeat;
+    background-size: 100vw 150vh;
     color: #221e18;
 }
 .navbar {

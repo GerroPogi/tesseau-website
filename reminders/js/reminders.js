@@ -104,7 +104,7 @@ document.getElementById("tesla").onclick = () => {
             newParams.set(key, value);
         }
     }
-    const newUrl = `reminders.html?section=tesla&${newParams.toString()}`;
+    const newUrl = `reminders?section=tesla&${newParams.toString()}`;
     window.location.href =newUrl;
 }
 document.getElementById("rousseau").onclick = () => {
@@ -115,7 +115,7 @@ document.getElementById("rousseau").onclick = () => {
             newParams.set(key, value);
         }
     }
-    const newUrl = `reminders.html?section=rousseau&${newParams.toString()}`;
+    const newUrl = `reminders?section=rousseau&${newParams.toString()}`;
     window.location.href =newUrl;
 }
 
@@ -127,7 +127,7 @@ document.getElementById("all").onclick = () => {
             newParams.set(key, value);
         }
     }
-    const newUrl = `reminders.html?${newParams.toString()}`;
+    const newUrl = `?${newParams.toString()}`;
     window.location.href =newUrl;
 }
 

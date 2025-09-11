@@ -196,7 +196,7 @@ function handleReminders(data){
 // CPE
 
 function addCPE(){
-    fetch(`api/reminders/cpe`)
+    fetch(`/api/reminders/cpe`)
     .then(response => response.json())
     .then(data => {
         const CPESubjectDiv= getSubjectDiv("Check-Point Exams (CPE)");
@@ -221,7 +221,7 @@ function addCPE(){
 }
 
 function addLT(){
-    fetch(`api/reminders/lt`)
+    fetch(`/api/reminders/lt`)
     .then(response => response.json())
     .then(data => {
         const LTSubjectDiv= getSubjectDiv("Long Tests");

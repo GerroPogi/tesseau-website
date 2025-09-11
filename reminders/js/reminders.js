@@ -217,7 +217,7 @@ function addCPE(){
         });
 
         document.getElementById("reminders-list").appendChild(CPESubjectDiv);
-    });
+    }).catch(error => console.log("Error handling CPE: ",error));
 }
 
 function addLT(){
@@ -242,7 +242,7 @@ function addLT(){
         });
 
         document.getElementById("reminders-list").appendChild(LTSubjectDiv);
-    });
+    }).catch(error => console.log("Error handling LT: ",error));
 }
 
 

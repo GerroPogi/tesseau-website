@@ -34,11 +34,12 @@ function add_addButton(){
                 <option value="groupings">Groupings</option>
                 <option value="lt">Long Test</option>
                 <option value="cpe">Check-Point Exam (CPE)</option>
-                <option value="pt">Peformance Task</option>
+                <option value="pt">Performance Task</option>
                 <option value="las">Learning Activity Sheet (LAS)</option>
                 <option value="activity">Activity</option>
                 <option value="requirement">Requirement</option>
             </select><br>
+            <input type="file" id="file" name="file" multiple><br>
             <button type="submit">Add Reminder</button>
         </form>
         `;
@@ -62,21 +63,48 @@ function add_addButton(){
         const deadline = document.getElementById("deadline").value;
         const type = document.getElementById("type").value;
         const reference = document.getElementById("reference").value || "";
+        const files = document.getElementById("file").files;
         addReminderSection.classList.add("hidden");
-        fetch("/api/reminders/new", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ subject, title, description, deadline, type, reference, owner_token})
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log("data", data);
-            updateList();
-            addReminderForm.reset();
-        })
-        .catch(error => {
-            console.error("Error adding reminder:", error);
-        });
+        let fileKeys = [];
+        // Upload to data first
+        if (files.length > 0) {
+            const uploadPromises = Array.from(files).map(file => {
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("admin", owner_token);
+                return fetch("/api/files/upload", { method: "POST", body: formData })
+                .then(res => res.json())
+                .then(data => data.fileKey);
+            });
+            Promise.all(uploadPromises)
+            .then(keys => {
+                fileKeys = keys;
+                console.log("fileKeys", fileKeys);
+                sendReminder();
+            })
+            .catch(error => {
+                console.error("Error uploading file:", error);
+            });
+        } else {
+            fileKey = "";
+            sendReminder();
+        }
+        function sendReminder(){
+            fetch("/api/reminders/new", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ subject, title, description, deadline, type, reference, owner_token, fileKeys })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("sending reminder: ", data);
+                updateList();
+                addReminderForm.reset();
+            })
+            .catch(error => {
+                console.error("Error adding reminder:", error);
+            });
+        }
     });
 }
 
@@ -193,13 +221,11 @@ function updateList(){
 
 // Normal subject reminders
 function handleReminders(data){
-    console.log("data", data);
     if (data.length === 0){
         reminders_list.innerHTML = "<p>No reminders found.</p>";
         return;
     }
     data.forEach(reminder => {
-        console.log("reminder", reminder);
         addReminder(reminder,isDateValid(reminder.deadline));
     });
     
@@ -221,10 +247,8 @@ function addCPE(){
                 subject: "Check-Point Exams (CPE)",
             };
         });
-        console.log("newData", newData);
 
         newData.forEach(reminder => {
-            console.log("reminder", reminder);
             addReminder(reminder,isDateValid(reminder.deadline));
         });
 
@@ -246,10 +270,8 @@ function addLT(){
                 subject: "Long Tests",
             };
         });
-        console.log("newData", newData);
 
         newData.forEach(reminder => {
-            console.log("reminder", reminder);
             addReminder(reminder,isDateValid(reminder.deadline));
         });
 
@@ -463,7 +485,8 @@ function addReminder(reminder,isValid){
     reminderDiv.classList.add("reminder");
     reminderDiv.id = `reminder-${reminder.id}`;
     
-    const { title, description, deadline, reference, type } = reminder;
+    const { title, description, deadline, reference, type, file_key: file_key_str } = reminder;
+    const file_key = file_key_str ? JSON.parse(file_key_str) : "";
 
     reminderDiv.innerHTML = `
         <div class="reminder-header-wrapper">
@@ -499,6 +522,9 @@ function addReminder(reminder,isValid){
                     <button onclick="editReminderDetail(${reminder.id}, 'type', '${type.replace(/'/g, "\\'")}')">Edit</button>
                 </div>` : "" }
             </div>
+            <div class="reminder-detail-wrapper">
+            
+            </div>
         </div>
         <div class="reminder-details" id="reminder-details-${reminder.id}-deadline" style="display: none;">
             <div>
@@ -529,8 +555,50 @@ function addReminder(reminder,isValid){
             </div>
         </div>` : ""
         }
+        
     `;
-   
+    const fileWrapperDiv = document.createElement("div");
+    fileWrapperDiv.id=`reminder-details-${reminder.id}-file`;
+    fileWrapperDiv.classList.add("reminder-details");
+    fileWrapperDiv.style.display = "none";
+    fileWrapperDiv.innerHTML=`
+            <div>
+                <span class="reminder-details-header">Attachment:</span>
+            </div>
+            <div class="reminder-detail-wrapper">
+                
+            </div>`
+
+
+    const fileDiv = document.createElement("div");
+    fileDiv.classList.add("reminder-detail")
+    if (file_key){
+        Array.from(file_key).forEach(file => {
+            console.log("Doing: ",file, " for ", reminder.id, "subject", reminder.subject," title", title);
+            const lower = file.toLowerCase();
+            if (lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".gif") || lower.endsWith(".webp")){
+                const img = document.createElement("img");
+                img.src = `/api/files/${file}`;
+                img.alt = "Attachment";
+                img.style.maxHeight = "200px";
+                img.style.maxWidth = "100%";
+                img.style.objectFit = "contain";
+                fileDiv.appendChild(img);
+            } else {
+                const a = document.createElement("a");
+                a.href = `/api/files/${file}`;
+                a.target = "_blank";
+                a.rel = "noopener";
+                a.textContent = "Download attachment";
+                fileDiv.appendChild(a);
+            }
+        });
+
+        fileWrapperDiv.querySelector(".reminder-detail-wrapper").appendChild(fileDiv);
+        reminderDiv.appendChild(fileWrapperDiv);    
+
+    }
+
     subjectContainerDiv.appendChild(reminderDiv);
     const subjectHeader = document.getElementById(`reminder-header-${reminder.id}`);
     subjectHeader.onclick =() => {

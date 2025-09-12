@@ -1,4 +1,4 @@
-// api/posts/upload.js
+// api/files/upload.js
 export async function onRequest(context) {
     const { request, env } = context;
     const formData = await request.formData();

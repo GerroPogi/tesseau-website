@@ -90,7 +90,7 @@ function updateAddPostForm() {
         formData.append("admin", admin); // auth check
         formData.append("file", file);
 
-        const res = await fetch("/api/posts/upload", {
+        const res = await fetch("/api/files/upload", {
             method: "POST",
             body: formData
         });

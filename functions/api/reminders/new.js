@@ -6,15 +6,17 @@ export async function onRequestPost(context) {
         });
     }
 
-    const { subject, title, deadline, description, type } = res;
+    const { subject, title, deadline, description, type, fileKeys: fileKeys_object } = res;
     const date_added = new Date().toISOString();
     const reference = res?.reference || "";
-    console.log(`Received data: ${subject}, ${title}, ${deadline}, ${description}, ${type}, ${reference}`);
+    console.log("File keys: ", fileKeys_object);
+    const fileKeys = JSON.stringify(fileKeys_object);
+    console.log(`Received data: ${subject}, ${title}, ${deadline}, ${description}, ${type}, ${reference}, ${fileKeys}`);
     const row = await context.env.tesseau_db
-        .prepare("INSERT INTO reminders (subject, title, deadline, description, type, date_added, reference) VALUES (?, ?, ?, ?, ?, ?, ?)")
-        .bind(subject, title, deadline, description, type, date_added, reference)
+        .prepare("INSERT INTO reminders (subject, title, deadline, description, type, date_added, reference, file_key) VALUES (?,?, ?, ?, ?, ?, ?, ?)")
+        .bind(subject, title, deadline, description, type, date_added, reference, fileKeys)
         .run();
-    console.log(`New data has been inputed: ${subject}, ${title}, ${deadline}, ${description}, ${type}, ${reference}`);
+    console.log(`New data has been inputed: ${subject}, ${title}, ${deadline}, ${description}, ${type}, ${reference}, ${fileKeys}`);
     // Fetch the last inserted row id safely
     const insertedId  = row?.meta?.last_row_id ?? null;
     console.log(`Inserted row:`, row);

@@ -3,6 +3,8 @@ const URLParams = new URLSearchParams(window.location.search);
 const owner_token = URLParams.get("admin") || "";
 let admin= false;
 
+const md = window.markdownit();
+
 document.getElementById(URLParams.get("section") || "all").classList.add("active-section");
 
 function add_addButton(){
@@ -10,9 +12,9 @@ function add_addButton(){
     addReminderSection.classList.remove("hidden");
     addReminderSection.innerHTML = `
         <h2>Add Reminder</h2>
-        <form id="add-reminder-form">
+        <form id="add-reminder-form" class="add-reminder-form">
             <input type="text" id="title" name="title" required placeholder="Title"><br>
-            <textarea id="description" name="description" required placeholder="Description"></textarea><br>
+            <div id = "content-placeholder"></div>
             <select id="subject" name="subject" required>
                 <option value="">Filter by subject</option>
                 <option>Intro to Philosophy</option>
@@ -40,13 +42,23 @@ function add_addButton(){
             <button type="submit">Add Reminder</button>
         </form>
         `;
+
+    fetch("/widgets/content_box.html")
+    .then(res => res.text())
+    .then(html => {
+        addReminderSection.querySelector("#content-placeholder").innerHTML = html;
+        // console.log(addReminderSection.getElementById("content-placeholder"));
+        const script = document.createElement("script");
+        script.src = "/widgets/js/content-box.js";
+        document.body.appendChild(script);
+    });
     
     const addReminderForm = document.getElementById("add-reminder-form");
     addReminderForm.addEventListener("submit", (e) => {
         e.preventDefault();
         const subject = document.getElementById("subject").value;
         const title = document.getElementById("title").value;
-        const description = document.getElementById("description").value;
+        const description = document.getElementById("content").value;
         const deadline = document.getElementById("deadline").value;
         const type = document.getElementById("type").value;
         const reference = document.getElementById("reference").value || "";
@@ -471,7 +483,7 @@ function addReminder(reminder,isValid){
                 <span class="reminder-details-header">Description:</span>
             </div>
             <div class="reminder-detail-wrapper">
-                <span contenteditable="false" class="reminder-detail">${description}</span>
+                <span contenteditable="false" class="reminder-detail">${md.render(description).replace(/<p>/g, "").replace(/<\/p>/g, "")}</span>
                 ${ admin ? `<div class="reminder-detail-button">
                     <button onclick="editReminderDetail(${reminder.id}, 'description', '${description.replace(/'/g, "\\'")}')">Edit</button>
                 </div>` : "" }

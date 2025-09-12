@@ -28,3 +28,18 @@
             <a id="about" class="nav-link" href="/about">About</a></li>
     </ul> 
 </nav>
+<!--
+<div id="navbar-placeholder"></div>
+<script>
+    fetch("/widgets/navbar.html")
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById("navbar-placeholder").innerHTML = html;
+            // Manually run navbar.js after injection
+            const script = document.createElement("script");
+            script.src = "/js/navbar.js";
+            document.body.appendChild(script);
+        });
+
+</script>
+-->

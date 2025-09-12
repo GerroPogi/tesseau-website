@@ -9,7 +9,7 @@
     <meta name="description" content="Tesseau is a section in FEU Roosevelt Rodriguez Campus. This website is made for its section to share study notes and reminders.">
     <meta name="keywords" content="reviewers, study notes, reminders, Tesseau, students, FEU Roosevelt, Rodriguez Campus">
     <meta name="author" content="Gerro Abarabar">
-    <script src = "js/admin.js"></script>
+    <script src = "/js/admin.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
 
 
@@ -24,7 +24,7 @@
             document.getElementById("navbar-placeholder").innerHTML = html;
             // Manually run navbar.js after injection
             const script = document.createElement("script");
-            script.src = "/js/navbar.js";
+            script.src = "/widgets/js/navbar.js";
             document.body.appendChild(script);
         });
 
@@ -35,33 +35,7 @@
     <div class="container">
         <h1>Welcome to Tesseau</h1>
         <div class="posts" id ="posts">
-            <div class="section-title">Posts</div>
-            <div id = "add-post-container" class = "hidden">
-                <h2>Add Post</h2>
-                <form id="add-post-form">
-                    <input type="text" id="author" name="author" placeholder="Author"><br>
-                    <input type="text" id="title" name="title" placeholder="Titile"><br>
-                    <textarea id="content" name="content" placeholder="Content"></textarea><br>
-                    <input type="file" id="file" name="file" accept="image/*"><br>
-                    <button type="submit">Submit</button>
-                </form>
-            </div>
-            <div class="post">
-                <div class="post-title">New Reminders Section!</div>
-                <span class="post-date">September 9, 2025</span>
-                <div class="post-content">
-                    With the recent update, we have added a new section for reminders. You may check the <a href = "/notes_stuff/reminders.html">reminders section</a> to find reminders for the future and even in the past!
-                </div>
-                <span class="post-author">by Gerro Abarabar</span>
-            </div>
-            <div class="post">
-                <div class="post-title">Tesseau Website Opening!</div>
-                <span class="post-date">September 8, 2025</span>
-                <div class="post-content">
-                    Tesseau is now live! Explore the <a href = "/notes_stuff/reviewers.html">reviewers section</a> to find and share study notes. Stay tuned for more updates and features. You may check the about page to know more about this website. Share with your friends!
-                </div>
-                <span class="post-author">by Gerro Abarabar</span>
-            </div>
+            
         </div>
         <div class="editor-notes">
             <div class="section-title">Editor Notes</div>
@@ -72,6 +46,6 @@
             </div>
         </div>
     </div>
-    <script src = "js/index.js"></script>
+    <script src = "/js/index.js"></script>
 </body>
 </html>

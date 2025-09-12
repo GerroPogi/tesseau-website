@@ -13,6 +13,10 @@
   justify-content: space-between; /* pushes span left, button right */
 }
 
+.reminder-detail-wrapper h1 {
+    font-size: 1.5em;
+}
+
 
 .reminder-details {
     margin-top: 10px;
@@ -110,4 +114,93 @@
     margin-top: 20px;
     margin-bottom: 20px;
     margin-left: 20px;
+}
+
+/* === Add-reminder form layout === */
+.add-reminder-form {
+  display: flex;
+  flex-direction: column;      /* stack children vertically */
+  gap: 12px;                   /* space between fields */
+  max-width: 640px;            /* nice readable width */
+  padding: 16px;
+}
+
+.add-reminder-form input,
+.add-reminder-form select,
+.add-reminder-form textarea,
+.add-reminder-form button {
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* Large content area */
+.add-reminder-form textarea {
+  min-height: 180px;
+  resize: vertical;
+  padding: 8px;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+/* Inputs/dropdowns like GitHub */
+.add-reminder-form input,
+.add-reminder-form select {
+  padding: 8px 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* Submit button */
+.add-reminder-form button[type="submit"] {
+  align-self: flex-start;
+  padding: 8px 14px;
+  background: #dfbc2d;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.add-reminder-form button[type="submit"]:hover {
+  background: #b38324;
+}
+
+/* Toolbar for markdown editor */
+#editor {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+#editor .toolbar {
+  display: flex;
+  gap: 4px;
+  padding: 6px;
+  background: #f6f8fa;
+  border-bottom: 1px solid #ddd;
+}
+
+#editor .toolbar button {
+  padding: 4px 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+#editor textarea {
+  width: 100%;
+  border: none;
+  padding: 8px;
+  font-family: monospace;
+  font-size: 0.95rem;
+}
+
+#preview {
+  padding: 12px;
+  background: #fafbfc;
+  border-top: 1px solid #ddd;
 }

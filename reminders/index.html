@@ -7,6 +7,7 @@
   <link href = "css/reminders.css" rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="/js/admin.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
   
 
 </head>
@@ -19,7 +20,7 @@
           document.getElementById("navbar-placeholder").innerHTML = html;
           // Manually run navbar.js after injection
           const script = document.createElement("script");
-          script.src = "/js/navbar.js";
+          script.src = "/widgets/js/navbar.js";
           document.body.appendChild(script);
       });
   </script>

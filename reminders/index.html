@@ -13,7 +13,7 @@
 <body>
   <div id="navbar-placeholder"></div>
   <script>
-  fetch("/navbar.html")
+  fetch("/widgets/navbar.html")
       .then(res => res.text())
       .then(html => {
           document.getElementById("navbar-placeholder").innerHTML = html;
@@ -23,10 +23,9 @@
           document.body.appendChild(script);
       });
   </script>
-  <script src="/js/navbar.js"></script>
   <div class = "container">
+    <div id = "add-reminder" class ="hidden"></div>
     <div class ="reminders-section">
-      <!--TODO: Add another page for past activities-->
       <h1>Reminders</h1> 
       <span id = "all" class = "section">All</span> | 
       <span id = "tesla" class = "section">Tesla</span> | 
@@ -37,7 +36,7 @@
         <!-- Reminders will be loaded here -->
       </div>
     </div>
-  <div id = "add-reminder" class ="hidden">
+  
 
   </div>
     <!-- <script src="/js/reminders.js" defer></script> -->

@@ -11,7 +11,7 @@
 <body>
     <div id="navbar-placeholder"></div>
   <script>
-  fetch("/navbar.html")
+  fetch("/widgets/navbar.html")
     .then(res => res.text())
     .then(html => {
         document.getElementById("navbar-placeholder").innerHTML = html;

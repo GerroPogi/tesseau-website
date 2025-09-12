@@ -10,12 +10,14 @@ function applyParamsToNavLinks() {
 
   document.querySelectorAll(".nav-link, .navbar a").forEach(link => {
     const url = new URL(link.href, window.location.origin);
+    
 
-    if ("admin" in currentParams){
-      url.searchParams.set("admin", currentParams["admin"]);
+    if (currentParams.has("admin")) {
+      url.searchParams.set("admin", currentParams.get("admin"));
+      console.log("admin", currentParams["admin"]);
     }
 
-    link.href = url.pathname + "?" + url.searchParams.toString();
+    link.href = url.href;
   });
 }
 

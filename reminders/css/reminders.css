@@ -98,7 +98,6 @@
   width: 100%;
   min-height: 500px;
   resize: none;          /* prevent manual resize handle */
-  overflow: hidden;      /* no scrollbars */
   box-sizing: border-box;
 }
 

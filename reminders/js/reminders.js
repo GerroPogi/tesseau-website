@@ -213,6 +213,7 @@ async function buildReminderAnnouncement() {
     const data = await res.json();
 
     data.forEach(r => {
+        if (!isDateValid(r.deadline)) return;
         const subj = r.subject;
         if (!reminders[subj]) reminders[subj] = [];
         reminders[subj].push({
@@ -238,6 +239,8 @@ async function buildReminderAnnouncement() {
         reminderText += `Long Tests\n`;
         console.log("lt", lt);
         lt.forEach(item => {
+            if (!isDateValid(item.deadline)) return;
+
             const deadlineDate = new Date(item.deadline);
             const deadlineDay = dayOfTheWeek[deadlineDate.getDay()];
             if (!isDateValid(item.deadline)) return;

@@ -187,11 +187,81 @@ isAdmin().then(data => {
                 document.getElementById("add-reminder-form").focus();
             }, 0); 
         }
+        const text_area = document.getElementById("add-reminder-textarea");
+        text_area.classList.remove("hidden");
+        buildReminderAnnouncement().then(data => {
+            document.getElementById("add-reminder-textarea").value = data;
+        });
+
     } else{
         console.log("Admin mode disabled");
     }
     updateList();
 });
+
+const dayOfTheWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+async function buildReminderAnnouncement() {
+    console.log("making the reminder text");
+    const today = new Date();
+    let reminderText = `${dayOfTheWeek[today.getDay()]} ${today.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' })}\n\n`;
+    const reminders = {};
+
+    // First fetch
+    const section = URLParams.get("section");
+    const res = await fetch(`/api/reminders${section ? `/${section}` : ""}`);
+    const data = await res.json();
+
+    data.forEach(r => {
+        const subj = r.subject;
+        if (!reminders[subj]) reminders[subj] = [];
+        reminders[subj].push({
+        ...r,
+        deadline: new Date(r.deadline).toISOString().split("T")[0],
+        });
+    });
+
+    for (const [subject, list] of Object.entries(reminders)) {
+        reminderText += `${subject}\n`;
+        
+        list.forEach(r => {
+            const deadlineDate = new Date(r.deadline);
+            const deadlineDay = dayOfTheWeek[deadlineDate.getDay()];
+        reminderText += `- ${r.title} DL: ${r.deadline} (${deadlineDay})\n`;
+        });
+        reminderText += "\n";
+    }
+
+    // Now you can append more via other async calls
+    const lt = await fetch("/api/reminders/lt").then(r => r.json());
+    if (lt.length) {
+        reminderText += `Long Tests\n`;
+        console.log("lt", lt);
+        lt.forEach(item => {
+            const deadlineDate = new Date(item.deadline);
+            const deadlineDay = dayOfTheWeek[deadlineDate.getDay()];
+            if (!isDateValid(item.deadline)) return;
+            reminderText += `- ${item.subject} - ${item.deadline} (${deadlineDay})\n`;
+        });
+        reminderText += "\n";
+    }
+
+    const cpe = await fetch("/api/reminders/cpe").then(r => r.json());
+    if (cpe.length) {
+        reminderText += `Check-Point Exams (CPE)\n`;
+        console.log("cpe", cpe);
+        cpe.forEach(item => {
+            if (!isDateValid(item.deadline)) return;
+            const deadlineDate = new Date(item.deadline);
+            const deadlineDay = dayOfTheWeek[deadlineDate.getDay()];
+            
+            reminderText += `- ${item.subject} - ${item.deadline} (${deadlineDay})\n`;
+        });
+        reminderText += "\n";
+    }
+    reminderText+="More information can be found in: https://tesseau.pages.dev/reminders";
+  return reminderText;
+}
 
 function updateList(){
     fetch(`/api/reminders${URLParams.get("section") ? `/${URLParams.get("section")}` : ""}`)
@@ -211,6 +281,17 @@ function updateList(){
         console.log("Handling lt");
 
         addLT();
+
+        const subjects = Array.from(reminders_list.children);
+        Array.from(subjects).forEach(subject => {
+            const wrapper = subject.querySelector(".reminder-wrapper");
+            wrapper.classList.remove("hidden");
+            Array.from(wrapper.children).forEach(reminder => {
+                if (reminder.id.endsWith("-valid")){
+                    reminder.classList.remove("hidden");
+                }
+            })
+        })
     })
     .catch(error => {
         console.error("Error fetching reminders:", error);
@@ -611,6 +692,9 @@ function addReminder(reminder,isValid){
             }
         });
     }
+
+
 }
+
 
 

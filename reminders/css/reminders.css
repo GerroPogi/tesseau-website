@@ -86,8 +86,20 @@
     
 }
 
+.reminder-page-valid, .reminder-page-invalid{
+    cursor: none;
+}
+
 .reminder-page-header:hover{
     text-decoration: underline;
+}
+
+#add-reminder-textarea {
+  width: 100%;
+  min-height: 500px;
+  resize: none;          /* prevent manual resize handle */
+  overflow: hidden;      /* no scrollbars */
+  box-sizing: border-box;
 }
 
 .reminder-container{

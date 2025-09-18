@@ -25,8 +25,41 @@
       });
   </script>
   <div class = "container">
-    <div id = "add-reminder" class ="hidden"></div>
+    
     <textarea id="add-reminder-textarea" class="hidden" placeholder="The reminder will be seen here..." ></textarea>
+    <div id = "add-reminder" class ="hidden">
+      <h2>Add Reminder</h2>
+        <form id="add-reminder-form" class="add-reminder-form">
+            <input type="text" id="title" name="title" required placeholder="Title"><br>
+            <div id = "content-placeholder"></div>
+            <select id="subject" name="subject" required>
+                <option value="">Filter by subject</option>
+                <option>Intro to Philosophy</option>
+                <option>Earth and Space Science 1</option>
+                <option>Finite Math 1</option>
+                <option>English</option>
+                <option>Filipino</option>
+                <option>General Math</option>
+                <option>General Science</option>
+                <option>Life and Career Skills</option>
+                <option>Pag-aaral ng Kasaysayan at Lipunang Pilipino</option>
+            </select><br>
+            <input type="date" id="deadline" name="deadline" required placeholder="Deadline"><br>
+            <input type="text" id="reference" name="reference" placeholder="Reference (Optional)"><br>
+            <select id="type" name="type" required>
+                <option value="">Select Type of Activity</option>
+                <option value="groupings">Groupings</option>
+                <option value="lt">Long Test</option>
+                <option value="cpe">Check-Point Exam (CPE)</option>
+                <option value="pt">Performance Task</option>
+                <option value="las">Learning Activity Sheet (LAS)</option>
+                <option value="activity">Activity</option>
+                <option value="requirement">Requirement</option>
+            </select><br>
+            <input type="file" id="file" name="file" multiple><br>
+            <button type="submit">Add Reminder</button>
+        </form>
+    </div>
     <div class ="reminders-section">
       <h1>Reminders</h1> 
       <span id = "all" class = "section">All</span> | 

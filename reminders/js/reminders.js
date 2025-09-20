@@ -147,6 +147,15 @@ document.getElementById("all").onclick = () => {
   window.location.href = newUrl;
 };
 
+function updateTextArea() {
+  if (!admin) return;
+  const text_area = document.getElementById("add-reminder-textarea");
+  text_area.classList.remove("hidden");
+  buildReminderAnnouncement().then((data) => {
+    document.getElementById("add-reminder-textarea").value = data;
+  });
+}
+
 isAdmin().then((data) => {
   console.log("data", data);
   admin = data;
@@ -162,11 +171,6 @@ isAdmin().then((data) => {
         document.getElementById("add-reminder-form").focus();
       }, 0);
     };
-    const text_area = document.getElementById("add-reminder-textarea");
-    text_area.classList.remove("hidden");
-    buildReminderAnnouncement().then((data) => {
-      document.getElementById("add-reminder-textarea").value = data;
-    });
   } else {
     console.log("Admin mode disabled");
   }
@@ -222,11 +226,13 @@ async function buildReminderAnnouncement() {
   }
 
   // Now you can append more via other async calls
-  const lt = await fetch("/api/reminders/lt").then((r) => r.json());
-  if (lt.length) {
+  const lts = await fetch("/api/reminders/lt").then((r) => r.json());
+  const allowedLt = lts.filter((lt) => isDateValid(lt.deadline));
+
+  if (allowedLt.length) {
     reminderText += `Long Tests\n`;
-    console.log("lt", lt);
-    lt.forEach((item) => {
+    console.log("lt", allowedLt);
+    allowedLt.forEach((item) => {
       if (!isDateValid(item.deadline)) return;
 
       const deadlineDate = new Date(item.deadline);
@@ -237,11 +243,17 @@ async function buildReminderAnnouncement() {
     reminderText += "\n";
   }
 
-  const cpe = await fetch("/api/reminders/cpe").then((r) => r.json());
-  if (cpe.length) {
+  const cpes = await fetch("/api/reminders/cpe").then((r) => r.json());
+  const allowedCPES = cpes.filter((cpe) => isDateValid(cpe.deadline));
+  for (let cpe in allowedCPES) {
+    if (isDateValid(cpes[cpe].deadline)) {
+      allowedCPES.push(cpes[cpe]);
+    }
+  }
+  if (allowedCPES.length) {
     reminderText += `Check-Point Exams (CPE)\n`;
-    console.log("cpe", cpe);
-    cpe.forEach((item) => {
+    console.log("cpe", allowedCPES);
+    allowedCPES.forEach((item) => {
       if (!isDateValid(item.deadline)) return;
       const deadlineDate = new Date(item.deadline);
       const deadlineDay = dayOfTheWeek[deadlineDate.getDay()];
@@ -255,55 +267,56 @@ async function buildReminderAnnouncement() {
   return reminderText;
 }
 
-function updateList() {
-  fetch(
-    `/api/reminders${
-      URLParams.get("section") ? `/${URLParams.get("section")}` : ""
-    }`
-  )
-    .then((response) => response.json())
-    .then((data) => {
-      const reminders_list = document.getElementById("reminders-list");
-      reminders_list.innerHTML = "";
-      let filterDate = document.getElementById("filterDate").value;
-      data = data.filter((r) =>
-        filterDate
-          ? new Date(r.deadline).toDateString() ===
-            new Date(filterDate).toDateString()
-          : true
-      );
-      console.log("Filtering date: ", filterDate);
-      if (data.length === 0) {
-        reminders_list.innerHTML = "<p>No reminders found.</p>";
-        return;
-      }
-      data = data.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
-      console.log("Handling reminders");
-      handleReminders(data);
-      console.log("Handling cpe");
+async function updateList() {
+  try {
+    const response = await fetch(
+      `/api/reminders${
+        URLParams.get("section") ? `/${URLParams.get("section")}` : ""
+      }`
+    );
+    let data = await response.json();
 
-      addCPE();
-      console.log("Handling lt");
+    const reminders_list = document.getElementById("reminders-list");
+    reminders_list.innerHTML = "";
 
-      addLT();
+    const filterDate = document.getElementById("filterDate").value;
+    data = data.filter((r) =>
+      filterDate
+        ? new Date(r.deadline).toDateString() ===
+          new Date(filterDate).toDateString()
+        : true
+    );
 
-      const subjects = Array.from(reminders_list.children);
-      Array.from(subjects).forEach((subject) => {
-        const wrapper = subject.querySelector(".reminder-wrapper");
-        wrapper.classList.remove("hidden");
-        Array.from(wrapper.children).forEach((reminder) => {
-          if (reminder.id.endsWith("-valid")) {
-            reminder.classList.remove("hidden");
-          }
-        });
+    if (data.length === 0) {
+      reminders_list.innerHTML = "<p>No reminders found.</p>";
+      return;
+    }
+
+    data.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+    handleReminders(data);
+
+    // ✅ now you can safely await
+    await addCPE();
+    await addLT();
+
+    const subjects = Array.from(reminders_list.children);
+    console.log("Subjects, CPE, and LT: ", subjects);
+    subjects.forEach((subject) => {
+      const wrapper = subject.querySelector(".reminder-wrapper");
+      wrapper.classList.remove("hidden");
+      Array.from(wrapper.children).forEach((reminder) => {
+        if (reminder.id.endsWith("-valid")) {
+          reminder.classList.remove("hidden");
+        }
       });
-    })
-    .catch((error) => {
-      console.error("Error fetching reminders:", error);
-      const reminders_list = document.getElementById("reminders-list");
-      reminders_list.innerHTML =
-        "<p>Error loading reminders. Please try again later.</p>";
     });
+  } catch (error) {
+    console.error("Error fetching reminders:", error);
+    document.getElementById("reminders-list").innerHTML =
+      "<p>Error loading reminders. Please try again later.</p>";
+  }
+
+  updateTextArea();
 }
 
 // Normal subject reminders
@@ -319,50 +332,50 @@ function handleReminders(data) {
 
 // CPE
 
-function addCPE() {
-  fetch(`/api/reminders/cpe`)
-    .then((response) => response.json())
-    .then((data) => {
-      const CPESubjectDiv = getSubjectDiv("Check-Point Exams (CPE)");
+async function addCPE() {
+  try {
+    const response = await fetch(`/api/reminders/cpe`);
+    const data = await response.json();
 
-      const newData = data.map((reminder) => {
-        return {
-          ...reminder,
-          title: reminder.subject,
-          subject: "Check-Point Exams (CPE)",
-        };
-      });
+    const CPESubjectDiv = getSubjectDiv("Check-Point Exams (CPE)");
 
-      newData.forEach((reminder) => {
-        addReminder(reminder, isDateValid(reminder.deadline));
-      });
+    const newData = data.map((reminder) => ({
+      ...reminder,
+      title: reminder.subject,
+      subject: "Check-Point Exams (CPE)",
+    }));
 
-      document.getElementById("reminders-list").appendChild(CPESubjectDiv);
-    })
-    .catch((error) => console.log("Error handling CPE: ", error));
+    newData.forEach((reminder) => {
+      addReminder(reminder, isDateValid(reminder.deadline));
+    });
+
+    document.getElementById("reminders-list").appendChild(CPESubjectDiv);
+  } catch (error) {
+    console.error("Error handling CPE:", error);
+  }
 }
 
-function addLT() {
-  fetch(`/api/reminders/lt`)
-    .then((response) => response.json())
-    .then((data) => {
-      const LTSubjectDiv = getSubjectDiv("Long Tests");
+async function addLT() {
+  try {
+    const response = await fetch(`/api/reminders/lt`);
+    const data = await response.json();
 
-      const newData = data.map((reminder) => {
-        return {
-          ...reminder,
-          title: reminder.subject,
-          subject: "Long Tests",
-        };
-      });
+    const LTSubjectDiv = getSubjectDiv("Long Tests");
 
-      newData.forEach((reminder) => {
-        addReminder(reminder, isDateValid(reminder.deadline));
-      });
+    const newData = data.map((reminder) => ({
+      ...reminder,
+      title: reminder.subject,
+      subject: "Long Tests",
+    }));
 
-      document.getElementById("reminders-list").appendChild(LTSubjectDiv);
-    })
-    .catch((error) => console.log("Error handling LT: ", error));
+    newData.forEach((reminder) => {
+      addReminder(reminder, isDateValid(reminder.deadline));
+    });
+
+    document.getElementById("reminders-list").appendChild(LTSubjectDiv);
+  } catch (error) {
+    console.error("Error handling LT:", error);
+  }
 }
 
 // Helper: create a header + page pair (valid or invalid reminders)
@@ -503,12 +516,6 @@ function editReminderDetail(id, field, currentValue) {
     }
     // Check if date is not in the past
     const inputDate = new Date(newValue);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (inputDate < today) {
-      alert("Deadline cannot be in the past.");
-      return;
-    }
   }
   if (field === "title") {
     if (!newValue.trim()) {

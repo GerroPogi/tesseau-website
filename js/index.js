@@ -1,11 +1,13 @@
 const URLParam = new URLSearchParams(window.location.search);
 const admin = URLParam.get("admin") || "";
 const md = window.markdownit();
+let ISADMIN = false;
 
 function adminChecker() {
   const addButtonPage = document.getElementById("add-post-container");
   isAdmin().then((data) => {
     console.log("data", data);
+    ISADMIN = data;
     if (data) {
       async function uploadPost(title, author, content, file) {
         const formData = new FormData();
@@ -264,22 +266,35 @@ function getPosts() {
         let filePreview = "";
         if (post.file_key) {
           const fileUrl = `/api/files/${post.file_key}`;
-          const lower = post.file_key.toLowerCase();
-          const isImg = [".png", ".jpg", ".jpeg", ".gif", ".webp"].some((ext) =>
-            lower.endsWith(ext)
-          );
+          const lowerKey = post.file_key.toLowerCase();
+
+          // ✅ isImg check (extension OR MIME)
+          const isImg =
+            /\.(png|jpe?g|gif|webp)$/i.test(lowerKey) ||
+            (post.mime && post.mime.startsWith("image/"));
+
+          console.debug("[getPosts] Attachment found:", {
+            key: post.file_key,
+            mime: post.mime,
+            isImg,
+          });
 
           const inner = isImg
-            ? `<img src="${fileUrl}" alt="Attachment" style="max-height:200px;max-width:100%;object-fit:contain;">`
+            ? `<img src="${fileUrl}" alt="Attachment" 
+         style="max-height:200px;max-width:100%;object-fit:contain;">`
             : `<a href="${fileUrl}" target="_blank" rel="noopener">📎 Download</a>`;
 
           filePreview = `
-            <div class="post-file editable" data-field="file_key" data-id="${post.id}" data-key="${post.file_key}">
-              ${inner}
-              <button class="delete-attach">✕</button>
-            </div>`;
+    <div class="post-file editable" 
+         data-field="file_key" 
+         data-id="${post.id}" 
+         data-key="${post.file_key}">
+      ${inner}
+      <button class="delete-attach" title="Remove file">✕</button>
+    </div>`;
+        } else {
+          console.debug("[getPosts] No attachment for post", post.id);
         }
-
         postDiv.innerHTML = `
           <div class="post-title editable" data-field="title" data-id="${
             post.id
@@ -304,6 +319,7 @@ function getPosts() {
         `;
 
         postsDiv.appendChild(postDiv);
+        console.debug("[getPosts] Rendering post", post);
       });
     });
 
@@ -324,6 +340,7 @@ function formatDisplayDate(value) {
 getPosts();
 
 document.addEventListener("click", (e) => {
+  if (!ISADMIN) return;
   const el = e.target.closest(".editable");
   if (!el) return;
 

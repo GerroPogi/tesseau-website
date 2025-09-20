@@ -55,7 +55,7 @@ function adminChecker() {
         const author = form.querySelector("#author").value;
         const content = form.querySelector("#content").value;
         const title = form.querySelector("#title").value;
-        const file = form.querySelector("#file").files[0];
+        const file = form.querySelector("#fileInput").files[0];
         uploadPost(title, author, content, file).then(() => getPosts());
       };
       // Deleting posts
@@ -162,6 +162,52 @@ function updateAddPostForm() {
       }
     }
   });
+  // --- Auto upload from upload box ---
+  const fileInput = document.getElementById("fileInput");
+  const uploadProgress = document.getElementById("uploadProgress");
+
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("admin", admin);
+    formData.append("file", file);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/api/files/upload");
+
+    xhr.upload.addEventListener("progress", (e) => {
+      if (e.lengthComputable) {
+        uploadProgress.hidden = false;
+        uploadProgress.value = Math.round((e.loaded / e.total) * 100);
+      }
+    });
+
+    xhr.onload = () => {
+      uploadProgress.hidden = true;
+      if (xhr.status === 200) {
+        const res = JSON.parse(xhr.responseText);
+        if (res.success) {
+          const mdLink = `![${file.name}](${res.url})`;
+          const start = textarea.selectionStart;
+          textarea.setRangeText(mdLink, start, start, "end");
+          textarea.dispatchEvent(new Event("input"));
+        } else {
+          alert("Upload failed: " + res.message);
+        }
+      } else {
+        alert("Server error: " + xhr.statusText);
+      }
+    };
+
+    xhr.onerror = () => {
+      uploadProgress.hidden = true;
+      alert("Network error while uploading.");
+    };
+
+    xhr.send(formData);
+  });
 }
 
 function getPosts() {
@@ -185,12 +231,24 @@ function getPosts() {
                         <div id="preview" class="preview"></div>
                     </div>
 
-                    <input type="file" id="file" name="file" accept="image/*,.pdf,.doc,.docx"><br>
+                    <div id="upload-box">
+                      <input id="fileInput" type="file" />
+                      <progress id="uploadProgress" value="0" max="100" hidden></progress>
+                    </div>
+
                     <button type="submit">Submit</button>
                 </form>
             </div>
         </div>`;
   updateAddPostForm();
+  fetch("/widgets/upload_box.html")
+    .then((res) => res.text())
+    .then((html) => {
+      document.getElementById("upload-placeholder").innerHTML = html;
+      const script = document.createElement("script");
+      script.src = "/widgets/js/upload_box.js";
+      document.body.appendChild(script);
+    });
 
   fetch("/api/posts")
     .then((res) => res.json())

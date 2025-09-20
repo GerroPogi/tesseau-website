@@ -1,51 +1,50 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="UTF-8" />
     <title>Tesseau</title>
-    <link href = "/css/base.css" rel="stylesheet">
-    <link href = "/css/index.css" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Tesseau is a section in FEU Roosevelt Rodriguez Campus. This website is made for its section to share study notes and reminders.">
-    <meta name="keywords" content="reviewers, study notes, reminders, Tesseau, students, FEU Roosevelt, Rodriguez Campus">
-    <meta name="author" content="Gerro Abarabar">
-    <script src = "/js/admin.js"></script>
+    <link href="/css/base.css" rel="stylesheet" />
+    <link href="/css/index.css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Tesseau is a section in FEU Roosevelt Rodriguez Campus. This website is made for its section to share study notes and reminders."
+    />
+    <meta
+      name="keywords"
+      content="reviewers, study notes, reminders, Tesseau, students, FEU Roosevelt, Rodriguez Campus"
+    />
+    <meta name="author" content="Gerro Abarabar" />
+    <script src="/js/admin.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
-
-
-    
-</head>
-<body>
+  </head>
+  <body>
     <div id="navbar-placeholder"></div>
     <script>
-    fetch("/widgets/navbar.html")
-        .then(res => res.text())
-        .then(html => {
-            document.getElementById("navbar-placeholder").innerHTML = html;
-            // Manually run navbar.js after injection
-            const script = document.createElement("script");
-            script.src = "/widgets/js/navbar.js";
-            document.body.appendChild(script);
+      fetch("/widgets/navbar.html")
+        .then((res) => res.text())
+        .then((html) => {
+          document.getElementById("navbar-placeholder").innerHTML = html;
+          // Manually run navbar.js after injection
+          const script = document.createElement("script");
+          script.src = "/widgets/js/navbar.js";
+          document.body.appendChild(script);
         });
-
     </script>
-    
-
+    <link href="/widgets/css/content_box.css" rel="stylesheet" />
 
     <div class="container">
-        <h1>Welcome to Tesseau</h1>
-        <div class="posts" id ="posts">
-            
+      <h1>Welcome to Tesseau</h1>
+      <div class="posts" id="posts"></div>
+      <div class="editor-notes">
+        <div class="section-title">Editor Notes</div>
+        <div class="note">
+          <div class="note-content">
+            This website was made by Gerro for just one week. kys calvyn
+          </div>
         </div>
-        <div class="editor-notes">
-            <div class="section-title">Editor Notes</div>
-            <div class="note">
-                <div class="note-content">
-                    This website was made by Gerro for just one week. kys calvyn
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
-    <script src = "/js/index.js"></script>
-</body>
+    <script src="/js/index.js"></script>
+  </body>
 </html>

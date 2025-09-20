@@ -1,26 +1,27 @@
-
 <div id="editor">
-    <div class="toolbar">
-        <button type="button" data-action="bold"><b>B</b></button>
-        <button type="button" data-action="italic"><i>I</i></button>
-        <button type="button" data-action="header">H</button>
-        <button type="button" data-action="link">🔗</button>
-        <button type="button" data-action="list">• List</button>
-    </div>
-    <textarea id="content" placeholder="Write your post in markdown..."></textarea>
-    <div id="preview" class="preview"></div>
+  <div class="toolbar">
+    <button type="button" data-action="bold"><b>B</b></button>
+    <button type="button" data-action="italic"><i>I</i></button>
+    <button type="button" data-action="header">H</button>
+    <button type="button" data-action="link">🔗</button>
+    <button type="button" data-action="list">• List</button>
+  </div>
+  <textarea
+    id="content"
+    placeholder="Write your post in markdown..."
+  ></textarea>
+  <div id="preview" class="preview"></div>
 </div>
+
 <!--
 <div id="content-placeholder"></div>
+<script src="/widgets/js/content-box.js"></script>
+<link href="/widgets/css/content-box.css" rel="stylesheet">
 <script>
     fetch("/widgets/contet-box.html")
         .then(res => res.text())
         .then(html => {
             document.getElementById("content-placeholder").innerHTML = html;
-            // Manually run content-box.js after injection
-            const script = document.createElement("script");
-            script.src = "/widgets/js/content-box.js";
-            document.body.appendChild(script);
         });
 
 </script>

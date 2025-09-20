@@ -1,0 +1,23 @@
+#uploader {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 12px;
+  font-family: system-ui, sans-serif;
+}
+
+#uploader input[type="file"] {
+  display: block;
+  margin: 6px 0 12px;
+}
+
+#progressBar {
+  width: 100%;
+  height: 18px;
+  margin-bottom: 6px;
+}
+
+.status {
+  font-size: 0.9rem;
+}

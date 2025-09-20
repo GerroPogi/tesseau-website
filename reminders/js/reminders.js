@@ -31,7 +31,7 @@ function add_addButton() {
     const deadline = document.getElementById("deadline").value;
     const type = document.getElementById("type").value;
     const reference = document.getElementById("reference").value || "";
-    const files = document.getElementById("file").files;
+    const files = document.getElementById("fileInput").files;
     addReminderSection.classList.add("hidden");
     let fileKeys = [];
     // Upload to data first

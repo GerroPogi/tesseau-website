@@ -56,7 +56,21 @@
                 <option value="activity">Activity</option>
                 <option value="requirement">Requirement</option>
             </select><br>
-            <input type="file" id="file" name="file" multiple><br>
+            <div id="upload-placeholder"></div>
+            <script>
+                fetch("/widgets/upload_box.html")
+                    .then(res => res.text())
+                    .then(html => {
+                        
+                        document.getElementById("upload-placeholder").innerHTML = html;
+                        const script = document.createElement("script");
+                        script.src = "/widgets/js/upload_box.js";
+                        document.body.appendChild(script);
+                        const fileInput = document.getElementById("fileInput");
+                        fileInput.multiple = true;
+                    });
+                
+            </script>
             <button type="submit">Add Reminder</button>
         </form>
     </div>

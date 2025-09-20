@@ -1,61 +1,60 @@
-// use the same "admin" already available in your page
-const fileInput = document.getElementById("fileInput");
-const progressBar = document.getElementById("progressBar");
-const statusEl = document.getElementById("status");
-const textarea = document.getElementById("content"); // markdown editor
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("fileInput");
+  const progressBar = document.getElementById("uploadProgress");
+  const status = document.getElementById("uploadStatus");
 
-fileInput.addEventListener("change", () => {
-  const file = fileInput.files[0];
-  if (!file) return;
+  // Toggle multiple attribute based on data-multiple
+  if (input.dataset.multiple === "true") {
+    input.setAttribute("multiple", "multiple");
+  } else {
+    input.removeAttribute("multiple");
+  }
 
-  const formData = new FormData();
-  formData.append("admin", admin);
-  formData.append("file", file);
+  input.addEventListener("change", async () => {
+    if (!input.files.length) return;
 
-  const xhr = new XMLHttpRequest();
-  xhr.open("POST", "/api/files/upload", true);
+    const files = Array.from(input.files);
+    status.textContent = `Uploading ${files.length} file${
+      files.length > 1 ? "s" : ""
+    }...`;
+    progressBar.value = 0;
 
-  // Progress
-  xhr.upload.addEventListener("progress", (e) => {
-    if (e.lengthComputable) {
-      const percent = Math.round((e.loaded / e.total) * 100);
-      progressBar.hidden = false;
-      progressBar.value = percent;
-      statusEl.textContent = `Uploading: ${percent}%`;
+    for (const [index, file] of files.entries()) {
+      await uploadFile(file, index + 1, files.length);
     }
   });
 
-  xhr.onload = () => {
-    progressBar.hidden = true;
-    progressBar.value = 0;
+  async function uploadFile(file, current, total) {
+    return new Promise((resolve, reject) => {
+      const formData = new FormData();
+      formData.append("admin", window.ADMIN_TOKEN || "");
+      formData.append("file", file);
 
-    if (xhr.status === 200) {
-      const res = JSON.parse(xhr.responseText);
-      statusEl.innerHTML = `<span style="color:green">Uploaded!</span>`;
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/files/upload");
 
-      // Insert markdown link into textarea
-      let mdLink;
-      const lower = file.name.toLowerCase();
-      if (/\.(png|jpe?g|gif|webp)$/i.test(lower)) {
-        mdLink = `![${file.name}](${res.url})`;
-      } else {
-        mdLink = `[${file.name}](${res.url})`;
-      }
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const percent = (e.loaded / e.total) * 100;
+          progressBar.value = percent;
+          status.textContent = `Uploading ${current}/${total}: ${Math.round(
+            percent
+          )}%`;
+        }
+      };
 
-      const start = textarea.selectionStart;
-      textarea.setRangeText(mdLink, start, start, "end");
-      textarea.dispatchEvent(new Event("input"));
-      fileInput.value = "";
-    } else {
-      statusEl.innerHTML = `<span style="color:red">Upload failed: ${xhr.responseText}</span>`;
-    }
-  };
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          status.textContent = `Uploaded ${file.name} (${current}/${total})`;
+          resolve();
+        } else {
+          status.textContent = `Error uploading ${file.name}`;
+          reject();
+        }
+      };
 
-  xhr.onerror = () => {
-    progressBar.hidden = true;
-    statusEl.textContent = "Network error.";
-  };
-
-  statusEl.textContent = "Starting upload...";
-  xhr.send(formData);
+      xhr.onerror = reject;
+      xhr.send(formData);
+    });
+  }
 });

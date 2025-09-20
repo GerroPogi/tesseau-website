@@ -1,7 +1,10 @@
 export async function onRequestPost({ env, request }) {
   try {
+    // --- Read body only once ---
+    const body = await request.json().catch(() => ({}));
+    const { admin, id, title, content, file_key, author, date_added } = body;
+
     // --- Authorization ---
-    const { admin } = await request.json().catch(() => ({}));
     if (admin !== env.owner_token) {
       return new Response(
         JSON.stringify({ success: false, message: "Unauthorized" }),
@@ -9,8 +12,6 @@ export async function onRequestPost({ env, request }) {
       );
     }
 
-    const body = await request.json();
-    const { id, title, content, fileKey } = body;
     if (!id) {
       return new Response(
         JSON.stringify({ success: false, message: "Missing id" }),
@@ -22,17 +23,26 @@ export async function onRequestPost({ env, request }) {
     const fields = [];
     const values = [];
 
-    if (title) {
+    // Use `!== undefined` so empty string ("") is allowed
+    if (title !== undefined) {
       fields.push("title = ?");
       values.push(title);
     }
-    if (content) {
+    if (date_added !== undefined) {
+      fields.push("date_added = ?");
+      values.push(date_added);
+    }
+    if (content !== undefined) {
       fields.push("content = ?");
       values.push(content);
     }
-    if (fileKey) {
+    if (author !== undefined) {
+      fields.push("author = ?");
+      values.push(author);
+    }
+    if (file_key !== undefined) {
       fields.push("file_key = ?");
-      values.push(fileKey);
+      values.push(file_key);
     }
 
     if (!fields.length) {

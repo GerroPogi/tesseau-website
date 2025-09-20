@@ -64,3 +64,30 @@
 .add-post-container {
   padding: 1em;
 }
+.inline-md-editor {
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 6px;
+  margin: 0.5rem 0;
+}
+.inline-md-editor .toolbar {
+  margin-bottom: 6px;
+}
+.inline-md-editor .editor-textarea {
+  width: 100%;
+  height: 200px;
+  font-family: monospace;
+  margin-bottom: 6px;
+}
+.inline-md-editor .preview {
+  border-top: 1px solid #ddd;
+  padding-top: 6px;
+  background: #fafafa;
+}
+.editor-actions {
+  margin-top: 6px;
+  text-align: right;
+}
+.editor-actions button {
+  margin-left: 6px;
+}

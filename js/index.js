@@ -92,31 +92,31 @@ function updateAddPostForm() {
     if (e.target.tagName !== "BUTTON") return;
 
     const action = e.target.dataset.action;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = textarea.value.slice(start, end);
+    const { selectionStart: start, selectionEnd: end, value } = textarea;
+    const selected = value.slice(start, end);
 
-    let newText = "";
+    let snippet = "";
     switch (action) {
       case "bold":
-        newText = `**${selectedText || "bold text"}**`;
+        snippet = `**${selected || "bold text"}**`;
         break;
       case "italic":
-        newText = `*${selectedText || "italic text"}*`;
+        snippet = `*${selected || "italic text"}*`;
         break;
       case "header":
-        newText = `# ${selectedText || "Heading"}`;
+        snippet = `# ${selected || "Heading"}`;
         break;
       case "link":
-        newText = `[${selectedText || "link text"}](http://)`;
+        snippet = `[${selected || "link text"}](http://)`;
         break;
       case "list":
-        newText = `- ${selectedText || "list item"}`;
+        snippet = `- ${selected || "list item"}`;
         break;
     }
 
-    textarea.setRangeText(newText, start, end, "end");
-    textarea.dispatchEvent(new Event("input"));
+    textarea.setRangeText(snippet, start, end, "end");
+    textarea.dispatchEvent(new Event("input")); // re-render preview
+    textarea.focus();
   });
 
   // Upload image and insert markdown link
@@ -244,7 +244,7 @@ function getPosts() {
   fetch("/widgets/upload_box.html")
     .then((res) => res.text())
     .then((html) => {
-      document.getElementById("upload-placeholder").innerHTML = html;
+      postsDiv.querySelector("#upload-box").innerHTML = html;
       const script = document.createElement("script");
       script.src = "/widgets/js/upload_box.js";
       document.body.appendChild(script);
@@ -253,7 +253,7 @@ function getPosts() {
   fetch("/api/posts")
     .then((res) => res.json())
     .then((data) => {
-      data.reverse();
+      data.sort((a, b) => new Date(b.date_added) - new Date(a.date_added));
       data.forEach((post) => {
         const postDiv = document.createElement("div");
         postDiv.classList.add("post");
@@ -265,37 +265,43 @@ function getPosts() {
         if (post.file_key) {
           const fileUrl = `/api/files/${post.file_key}`;
           const lower = post.file_key.toLowerCase();
+          const isImg = [".png", ".jpg", ".jpeg", ".gif", ".webp"].some((ext) =>
+            lower.endsWith(ext)
+          );
 
-          if (
-            lower.endsWith(".png") ||
-            lower.endsWith(".jpg") ||
-            lower.endsWith(".jpeg") ||
-            lower.endsWith(".gif") ||
-            lower.endsWith(".webp")
-          ) {
-            filePreview = `<div class="post-file">
-                            <img src="${fileUrl}" alt="Attachment" style="max-height:200px; max-width:100%; object-fit:contain;">
-                        </div>`;
-          } else {
-            filePreview = `<div class="post-file">
-                            <a href="${fileUrl}" target="_blank" rel="noopener">📎 Download attachment</a>
-                        </div>`;
-          }
+          const inner = isImg
+            ? `<img src="${fileUrl}" alt="Attachment" style="max-height:200px;max-width:100%;object-fit:contain;">`
+            : `<a href="${fileUrl}" target="_blank" rel="noopener">📎 Download</a>`;
+
+          filePreview = `
+            <div class="post-file editable" data-field="file_key" data-id="${post.id}" data-key="${post.file_key}">
+              ${inner}
+              <button class="delete-attach">✕</button>
+            </div>`;
         }
 
         postDiv.innerHTML = `
-                    <div class="post-title">${post.title}</div>
-                    <span class="post-date">
-                        ${new Intl.DateTimeFormat("en-US", {
-                          month: "long",
-                          day: "numeric",
-                          year: "numeric",
-                        }).format(new Date(post.date_added))}
-                    </span>
-                    <div class="post-content">${htmlContent}</div>
-                    ${filePreview}
-                    <span class="post-author">by ${post.author}</span>
-                `;
+          <div class="post-title editable" data-field="title" data-id="${
+            post.id
+          }">${post.title}</div>
+          <span class="post-date editable"
+                data-field="date_added"
+                data-id="${post.id}"
+                data-value="${post.date_added}">
+            ${formatDisplayDate(post.date_added)}
+          </span>
+
+
+          <div class="post-content editable" data-field="content" data-id="${
+            post.id
+          }" data-markdown="${encodeURIComponent(post.content)}">
+            ${htmlContent}
+          </div>
+          ${filePreview}
+          <span class="post-author editable" data-field="author" data-id="${
+            post.id
+          }">by ${post.author}</span>
+        `;
 
         postsDiv.appendChild(postDiv);
       });
@@ -304,4 +310,279 @@ function getPosts() {
   adminChecker();
 }
 
+// Put this near the top (after markdownit etc.)
+function formatDisplayDate(value) {
+  // value is assumed to be "YYYY-MM-DD" or an ISO string
+  const d = new Date(value);
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }); // -> "September 20, 2025"
+}
+
 getPosts();
+
+document.addEventListener("click", (e) => {
+  const el = e.target.closest(".editable");
+  if (!el) return;
+
+  const field = el.dataset.field;
+  const id = el.dataset.id;
+
+  // --- ATTACHMENT editing ---
+  if (field === "file_key") {
+    const wrapper = document.createElement("div");
+    wrapper.className = "attach-editor";
+    wrapper.innerHTML = `
+    <input type="file" class="file-replace">
+    <progress max="100" value="0" hidden></progress>
+    <div class="actions">
+      <button class="save-btn">Upload & Save</button>
+      <button class="clear-btn">Clear</button>
+      <button class="cancel-btn">Cancel</button>
+    </div>
+  `;
+    el.replaceWith(wrapper);
+
+    const input = wrapper.querySelector(".file-replace");
+    const prog = wrapper.querySelector("progress");
+
+    const save = async () => {
+      const file = input.files[0];
+
+      // ---- Case 1: user cleared the attachment ----
+      if (!file) {
+        await fetch("/api/posts/edit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ admin, id, file_key: "" }),
+        });
+        getPosts();
+        return;
+      }
+
+      // ---- Case 2: upload a new file, then update the DB ----
+      const form = new FormData();
+      form.append("admin", admin);
+      form.append("file", file);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/files/upload");
+
+      xhr.upload.addEventListener("progress", (ev) => {
+        if (ev.lengthComputable) {
+          prog.hidden = false;
+          prog.value = Math.round((ev.loaded / ev.total) * 100);
+        }
+      });
+
+      xhr.onload = async () => {
+        prog.hidden = true;
+
+        if (xhr.status === 200) {
+          const res = JSON.parse(xhr.responseText);
+
+          if (res.success && res.fileKey) {
+            // ✅ use fileKey
+            await fetch("/api/posts/edit", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                admin,
+                id,
+                file_key: res.fileKey, // ✅ send fileKey to DB
+              }),
+            });
+            getPosts();
+          } else {
+            alert("Upload failed");
+            console.log("Upload response:", res);
+          }
+        } else {
+          alert("Server error");
+        }
+      };
+
+      xhr.onerror = () => {
+        prog.hidden = true;
+        alert("Network error while uploading.");
+      };
+
+      xhr.send(form);
+    };
+
+    wrapper.querySelector(".save-btn").addEventListener("click", save);
+
+    wrapper.querySelector(".clear-btn").addEventListener("click", async () => {
+      await fetch("/api/posts/edit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ admin, id, file_key: "" }),
+      });
+      getPosts();
+    });
+
+    wrapper
+      .querySelector(".cancel-btn")
+      .addEventListener("click", () => wrapper.replaceWith(el));
+
+    return;
+  }
+
+  // --- DATE editing ---
+  if (field === "date_added") {
+    const orig = el.dataset.value || new Date().toISOString().slice(0, 10);
+    const input = document.createElement("input");
+    input.type = "date";
+    input.value = orig.slice(0, 10);
+    el.replaceWith(input);
+    input.focus();
+
+    const saveDate = async () => {
+      const val = input.value.trim();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) {
+        alert("Date must be in YYYY-MM-DD format");
+        return;
+      }
+      if (val !== orig) {
+        await fetch("/api/posts/edit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ admin, id, date_added: val }),
+        });
+      }
+      el.textContent = formatDisplayDate(val);
+      el.dataset.value = val;
+      input.replaceWith(el);
+    };
+
+    input.addEventListener("blur", saveDate);
+    input.addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter") {
+        ev.preventDefault();
+        saveDate();
+      }
+      if (ev.key === "Escape") input.replaceWith(el);
+    });
+    return;
+  }
+
+  // --- CONTENT editing (markdown editor) ---
+  if (field === "content") {
+    const originalMD = decodeURIComponent(el.dataset.markdown || "");
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "inline-md-editor";
+    wrapper.innerHTML = `
+      <div class="toolbar">
+        <button type="button" data-action="bold"><b>B</b></button>
+        <button type="button" data-action="italic"><i>I</i></button>
+        <button type="button" data-action="header">H</button>
+        <button type="button" data-action="link">🔗</button>
+        <button type="button" data-action="list">• List</button>
+      </div>
+      <textarea class="editor-textarea">${originalMD}</textarea>
+      <div class="preview">${md.render(originalMD)}</div>
+      <div class="editor-actions">
+        <button class="save-btn">Save</button>
+        <button class="cancel-btn">Cancel</button>
+      </div>
+    `;
+
+    el.replaceWith(wrapper);
+
+    const textarea = wrapper.querySelector(".editor-textarea");
+    const preview = wrapper.querySelector(".preview");
+    const toolbar = wrapper.querySelector(".toolbar");
+
+    textarea.addEventListener("input", () => {
+      preview.innerHTML = md.render(textarea.value);
+    });
+
+    toolbar.addEventListener("click", (ev) => {
+      if (ev.target.tagName !== "BUTTON") return;
+      const act = ev.target.dataset.action;
+      const { selectionStart: s, selectionEnd: e, value } = textarea;
+      const sel = value.slice(s, e);
+      let snippet = "";
+
+      switch (act) {
+        case "bold":
+          snippet = `**${sel || "bold text"}**`;
+          break;
+        case "italic":
+          snippet = `*${sel || "italic text"}*`;
+          break;
+        case "header":
+          snippet = `# ${sel || "Heading"}`;
+          break;
+        case "link":
+          snippet = `[${sel || "link text"}](http://)`;
+          break;
+        case "list":
+          snippet = `- ${sel || "list item"}`;
+          break;
+      }
+      textarea.setRangeText(snippet, s, e, "end");
+      textarea.dispatchEvent(new Event("input"));
+      textarea.focus();
+    });
+
+    wrapper.querySelector(".save-btn").addEventListener("click", async () => {
+      const newVal = textarea.value.trim();
+      if (newVal !== originalMD) {
+        await fetch("/api/posts/edit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ admin, id, content: newVal }),
+        });
+      }
+      el.innerHTML = md.render(newVal);
+      el.dataset.markdown = encodeURIComponent(newVal);
+      wrapper.replaceWith(el);
+    });
+
+    wrapper.querySelector(".cancel-btn").addEventListener("click", () => {
+      wrapper.replaceWith(el);
+    });
+
+    return;
+  }
+
+  // --- TITLE / AUTHOR inline editing ---
+  let originalText =
+    field === "author" ? el.textContent.replace(/^by\s+/, "") : el.textContent;
+
+  const input = document.createElement("input");
+  input.value = originalText;
+  input.className = "inline-editor";
+  el.replaceWith(input);
+  input.focus();
+
+  const saveInline = async () => {
+    const newVal = input.value.trim();
+    let displayVal = newVal;
+    if (field === "author") displayVal = `by ${newVal}`;
+    if (newVal !== originalText) {
+      await fetch("/api/posts/edit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ admin, id, [field]: newVal }),
+      });
+    }
+    el.textContent = displayVal;
+    input.replaceWith(el);
+  };
+
+  const cancelInline = () => input.replaceWith(el);
+
+  input.addEventListener("blur", saveInline);
+  input.addEventListener("keydown", (ev) => {
+    if (ev.key === "Enter") {
+      ev.preventDefault();
+      saveInline();
+    }
+    if (ev.key === "Escape") cancelInline();
+  });
+});

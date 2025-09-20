@@ -91,3 +91,17 @@
 .editor-actions button {
   margin-left: 6px;
 }
+.load-more {
+  display: block; /* full width */
+  text-align: center; /* center text */
+  margin: 1rem auto;
+  padding: 0.4rem 0.8rem;
+  color: #c2a00a;
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 500;
+  user-select: none;
+}
+.load-more:hover {
+  color: #825500;
+}

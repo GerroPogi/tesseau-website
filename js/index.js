@@ -3,6 +3,16 @@ const admin = URLParam.get("admin") || "";
 const md = window.markdownit();
 let ISADMIN = false;
 
+function formatDisplayDate(value) {
+  // value is assumed to be "YYYY-MM-DD" or an ISO string
+  const d = new Date(value);
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }); // -> "September 20, 2025"
+}
+
 function adminChecker() {
   const addButtonPage = document.getElementById("add-post-container");
   isAdmin().then((data) => {
@@ -212,131 +222,112 @@ function updateAddPostForm() {
   });
 }
 
-function getPosts() {
+const POSTS_PER_PAGE = 5;
+let allPosts = [];
+let renderedCount = 0;
+let showingAll = false;
+
+async function fetchAllPosts() {
+  const res = await fetch("/api/posts");
+  const data = await res.json();
+  return data.sort((a, b) => new Date(b.date_added) - new Date(a.date_added));
+}
+
+function renderPosts(limit) {
   const postsDiv = document.getElementById("posts");
-  postsDiv.innerHTML = `
-        <div class="section-title">Posts</div>
-            <div id="add-post-container" class="hidden">
-                <h2>Add Post</h2>
-                <form id="add-post-form">
-                    <input type="text" id="author" name="author" placeholder="Author"><br>
-                    <input type="text" id="title" name="title" placeholder="Title"><br>
-                    <div id="editor">
-                        <div class="toolbar">
-                            <button type="button" data-action="bold"><b>B</b></button>
-                            <button type="button" data-action="italic"><i>I</i></button>
-                            <button type="button" data-action="header">H</button>
-                            <button type="button" data-action="link">🔗</button>
-                            <button type="button" data-action="list">• List</button>
-                        </div>
-                        <textarea id="content" placeholder="Write your post in markdown..."></textarea>
-                        <div id="preview" class="preview"></div>
-                    </div>
+  postsDiv.innerHTML = "";
 
-                    <div id="upload-box">
-                      <input id="fileInput" type="file" />
-                      <progress id="uploadProgress" value="0" max="100" hidden></progress>
-                    </div>
+  const slice = allPosts.slice(0, limit);
+  slice.forEach((post) => {
+    const postDiv = document.createElement("div");
+    postDiv.classList.add("post");
+    postDiv.id = `post-${post.id}`;
+    const htmlContent = md.render(post.content);
 
-                    <button type="submit">Submit</button>
-                </form>
-            </div>
-        </div>`;
-  updateAddPostForm();
-  fetch("/widgets/upload_box.html")
-    .then((res) => res.text())
-    .then((html) => {
-      postsDiv.querySelector("#upload-box").innerHTML = html;
-      const script = document.createElement("script");
-      script.src = "/widgets/js/upload_box.js";
-      document.body.appendChild(script);
-    });
+    let filePreview = "";
+    if (post.file_key) {
+      const fileUrl = `/api/files/${post.file_key}`;
+      const isImg = /\.(png|jpe?g|gif|webp)$/i.test(
+        post.file_key.toLowerCase()
+      );
+      const inner = isImg
+        ? `<img src="${fileUrl}" alt="Attachment"
+                style="max-height:200px;max-width:100%;object-fit:contain;">`
+        : `<a href="${fileUrl}" target="_blank">📎 Download</a>`;
+      filePreview = `<div class="post-file editable" data-field="file_key"
+                       data-id="${post.id}" data-key="${post.file_key}">
+                       ${inner}
+                       <button class="delete-attach">✕</button>
+                     </div>`;
+    }
 
-  fetch("/api/posts")
-    .then((res) => res.json())
-    .then((data) => {
-      data.sort((a, b) => new Date(b.date_added) - new Date(a.date_added));
-      data.forEach((post) => {
-        const postDiv = document.createElement("div");
-        postDiv.classList.add("post");
-        postDiv.id = `post-${post.id}`;
-        const htmlContent = md.render(post.content);
-
-        // --- Build file preview if present ---
-        let filePreview = "";
-        if (post.file_key) {
-          const fileUrl = `/api/files/${post.file_key}`;
-          const lowerKey = post.file_key.toLowerCase();
-
-          // ✅ isImg check (extension OR MIME)
-          const isImg =
-            /\.(png|jpe?g|gif|webp)$/i.test(lowerKey) ||
-            (post.mime && post.mime.startsWith("image/"));
-
-          console.debug("[getPosts] Attachment found:", {
-            key: post.file_key,
-            mime: post.mime,
-            isImg,
-          });
-
-          const inner = isImg
-            ? `<img src="${fileUrl}" alt="Attachment" 
-         style="max-height:200px;max-width:100%;object-fit:contain;">`
-            : `<a href="${fileUrl}" target="_blank" rel="noopener">📎 Download</a>`;
-
-          filePreview = `
-    <div class="post-file editable" 
-         data-field="file_key" 
-         data-id="${post.id}" 
-         data-key="${post.file_key}">
-      ${inner}
-      <button class="delete-attach" title="Remove file">✕</button>
-    </div>`;
-        } else {
-          console.debug("[getPosts] No attachment for post", post.id);
-        }
-        postDiv.innerHTML = `
-          <div class="post-title editable" data-field="title" data-id="${
-            post.id
-          }">${post.title}</div>
-          <span class="post-date editable"
-                data-field="date_added"
-                data-id="${post.id}"
-                data-value="${post.date_added}">
-            ${formatDisplayDate(post.date_added)}
-          </span>
-
-
-          <div class="post-content editable" data-field="content" data-id="${
-            post.id
-          }" data-markdown="${encodeURIComponent(post.content)}">
-            ${htmlContent}
-          </div>
-          ${filePreview}
-          <span class="post-author editable" data-field="author" data-id="${
-            post.id
-          }">by ${post.author}</span>
-        `;
-
-        postsDiv.appendChild(postDiv);
-        console.debug("[getPosts] Rendering post", post);
-      });
-    });
+    postDiv.innerHTML = `
+      <div class="post-title editable" data-field="title" data-id="${post.id}">
+        ${post.title}
+      </div>
+      <span class="post-date editable"
+            data-field="date_added"
+            data-id="${post.id}"
+            data-value="${post.date_added}">
+        ${formatDisplayDate(post.date_added)}
+      </span>
+      <div class="post-content editable"
+           data-field="content"
+           data-id="${post.id}"
+           data-markdown="${encodeURIComponent(post.content)}">
+        ${htmlContent}
+      </div>
+      ${filePreview}
+      <span class="post-author editable"
+            data-field="author"
+            data-id="${post.id}">
+        by ${post.author}
+      </span>
+    `;
+    postsDiv.appendChild(postDiv);
+  });
 
   adminChecker();
 }
 
-// Put this near the top (after markdownit etc.)
-function formatDisplayDate(value) {
-  // value is assumed to be "YYYY-MM-DD" or an ISO string
-  const d = new Date(value);
-  return d.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }); // -> "September 20, 2025"
+function updateToggleLabel() {
+  const btn = document.getElementById("togglePostsBtn");
+  if (allPosts.length <= POSTS_PER_PAGE) {
+    btn.classList.add("hidden");
+  } else {
+    btn.classList.remove("hidden");
+    btn.textContent = showingAll ? "Show less" : "Load more…";
+  }
 }
 
+async function getPosts() {
+  allPosts = await fetchAllPosts();
+  showingAll = false;
+  renderedCount = Math.min(POSTS_PER_PAGE, allPosts.length);
+  renderPosts(renderedCount);
+  updateToggleLabel();
+}
+
+document.getElementById("togglePostsBtn").addEventListener("click", () => {
+  if (!showingAll) {
+    // Show all posts
+    showingAll = true;
+    renderedCount = allPosts.length;
+  } else {
+    // Collapse back
+    showingAll = false;
+    renderedCount = Math.min(POSTS_PER_PAGE, allPosts.length);
+
+    // Smooth scroll back to the top of the posts section
+    const postsTop = document.getElementById("posts").offsetTop;
+    window.scrollTo({ top: postsTop - 20, behavior: "smooth" });
+  }
+
+  renderPosts(renderedCount);
+  updateToggleLabel();
+});
+
+// Initial load
 getPosts();
 
 document.addEventListener("click", (e) => {

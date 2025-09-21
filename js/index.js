@@ -257,7 +257,11 @@ function renderPosts(limit) {
       filePreview = `<div class="post-file editable" data-field="file_key"
                        data-id="${post.id}" data-key="${post.file_key}">
                        ${inner}
-                       <button class="delete-attach">✕</button>
+                       ${
+                         ISADMIN
+                           ? `<button class="delete-attach">✕</button>`
+                           : ""
+                       }
                      </div>`;
     }
 

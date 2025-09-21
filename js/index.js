@@ -184,7 +184,10 @@ function renderPosts(limit) {
       const inner = isImg
         ? `<img src="${fileUrl}" alt="Attachment"
                 style="max-height:200px;max-width:100%;object-fit:contain;">`
-        : `<a href="${fileUrl}" target="_blank">📎 Download</a>`;
+        : `<a href="${fileUrl}" target="_blank">📎 ${post.file_key.replace(
+            /^[\d-]+-/,
+            ""
+          )}</a>`;
       filePreview = `<div class="post-file editable" data-field="file_key"
                        data-id="${post.id}" data-key="${post.file_key}">
                        ${inner}

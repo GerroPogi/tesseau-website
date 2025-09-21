@@ -23,6 +23,11 @@
   margin-bottom: 0.4em;
   color: #a9761d;
 }
+
+.post-file a {
+  margin-bottom: 0.4em;
+  color: #a9761d;
+}
 .post-content,
 .note-content {
   font-size: 1em;

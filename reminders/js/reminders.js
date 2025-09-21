@@ -709,7 +709,7 @@ function addReminder(reminder, isValid) {
   fileWrapperDiv.style.display = "none";
   fileWrapperDiv.innerHTML = `
             <div>
-                <span class="reminder-details-header">Attachment:</span>
+                <span class="reminder-details-header">Attachments:</span>
             </div>
             <div class="reminder-detail-wrapper">
                 
@@ -749,7 +749,7 @@ function addReminder(reminder, isValid) {
         a.href = `/api/files/${file}`;
         a.target = "_blank";
         a.rel = "noopener";
-        a.textContent = "Download attachment";
+        a.textContent = file.replace(/^[\d-]+-/, "");
         fileDiv.appendChild(a);
       }
     });

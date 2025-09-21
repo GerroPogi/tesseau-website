@@ -2,9 +2,9 @@
   margin-left: 20px;
 }
 
-.reminder-details-header{
-    font-weight: bold;
-    margin-left: 10px;
+.reminder-details-header {
+  font-weight: bold;
+  margin-left: 10px;
 }
 
 .reminder-detail-wrapper {
@@ -14,125 +14,122 @@
 }
 
 .reminder-detail-wrapper h1 {
-    font-size: 1.5em;
+  font-size: 1.5em;
 }
 
-
 .reminder-details {
-    margin-top: 10px;
-    display: flex;
-    align-items: center; /* vertically aligns text and button */
-    gap: 10px; /* spacing between text and button */
+  margin-top: 10px;
+  display: flex;
+  align-items: center; /* vertically aligns text and button */
+  gap: 10px; /* spacing between text and button */
 }
 
 .reminder-detail-button {
   margin-left: auto; /* ensures button is pushed right */
 }
 
-
-.reminder-header:hover{
-    text-decoration: underline;
+.reminder-header:hover {
+  text-decoration: underline;
 }
 
-.active-section{
-    font-weight: bold;
+.active-section {
+  font-weight: bold;
 }
-.section{
-    cursor: pointer;
-}
-
-.section:hover{
-    text-decoration: underline;
+.section {
+  cursor: pointer;
 }
 
-.trash-icon, .edit-icon{
-    display:flex;
-    justify-content: flex-end; /* pushes button to right */
-    margin-top: 5px; /* optional */
-    font-size: 2em;
+.section:hover {
+  text-decoration: underline;
 }
 
-.reminder-header-wrapper .reminder-title-button{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.trash-icon,
+.edit-icon {
+  display: flex;
+  justify-content: flex-end; /* pushes button to right */
+  margin-top: 5px; /* optional */
+  font-size: 2em;
 }
 
-.reminder-title-button{
-    margin: 8px;
+.reminder-header-wrapper .reminder-title-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-
-
-.reminder-header{
-    cursor: pointer;
-    display: inline-block;
+.reminder-title-button {
+  margin: 8px;
 }
 
-.reminder-subject{
-    margin-bottom: 10px;
-    font-size: 18px;
-    color: gray;
-    margin-left: 10px;
-    cursor: pointer;
+.reminder-header {
+  cursor: pointer;
+  display: inline-block;
 }
 
-.reminder-subject:hover{
-    text-decoration: underline;
+.reminder-subject {
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: gray;
+  margin-left: 10px;
+  cursor: pointer;
 }
 
-.reminder-page-header{
-    cursor: pointer;
-    
+.reminder-subject:hover {
+  text-decoration: underline;
 }
 
-.reminder-page-valid, .reminder-page-invalid{
-    cursor: none;
+.reminder-page-header {
+  cursor: pointer;
 }
 
-.reminder-page-header:hover{
-    text-decoration: underline;
+.reminder-page-valid,
+.reminder-page-invalid {
+  cursor: none;
+}
+
+.reminder-page-header:hover {
+  text-decoration: underline;
 }
 
 #add-reminder-textarea {
   width: 100%;
   min-height: 500px;
-  resize: none;          /* prevent manual resize handle */
+  resize: none; /* prevent manual resize handle */
   box-sizing: border-box;
 }
 
-.reminder-container{
-    border: 1px solid #ccc;
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+.reminder-container {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.reminder-page-container{
-    margin-top: 20px;
-    margin-bottom: 20px;
-    margin-left: 20px;
+.reminder-page-container {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 20px;
 }
 
-.reminder-title{
-    font-size: 1em;
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #2d3748;
+.reminder-title {
+  font-size: 1em;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #2d3748;
 }
 
-.reminder-wrapper{
-    margin-top: 20px;
-    margin-bottom: 20px;
-    margin-left: 20px;
+.reminder-wrapper {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 20px;
 }
 
 /* === Add-reminder form layout === */
 .add-reminder-form {
   display: flex;
-  flex-direction: column;      /* stack children vertically */
-  gap: 12px;                   /* space between fields */
-  max-width: 640px;            /* nice readable width */
+  flex-direction: column; /* stack children vertically */
+  gap: 12px; /* space between fields */
+  max-width: 640px; /* nice readable width */
   padding: 16px;
 }
 
@@ -142,7 +139,7 @@
 .add-reminder-form button {
   width: 100%;
   box-sizing: border-box;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Large content area */
@@ -214,4 +211,8 @@
   padding: 12px;
   background: #fafbfc;
   border-top: 1px solid #ddd;
+}
+
+.reminder-detail a {
+  color: #967f00;
 }

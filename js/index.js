@@ -2,6 +2,8 @@ const URLParam = new URLSearchParams(window.location.search);
 const admin = URLParam.get("admin") || "";
 const md = window.markdownit();
 let ISADMIN = false;
+// ✅ define the flag here, before listeners
+let isUploading = false;
 
 function formatDisplayDate(value) {
   // value is assumed to be "YYYY-MM-DD" or an ISO string
@@ -16,7 +18,7 @@ function formatDisplayDate(value) {
 function adminChecker() {
   const addButtonPage = document.getElementById("add-post-container");
   isAdmin().then((data) => {
-    console.log("data", data);
+    console.log("admin", data);
     ISADMIN = data;
     if (data) {
       async function uploadPost(title, author, content, file) {
@@ -33,7 +35,7 @@ function adminChecker() {
             body: formData, // 👈 no headers, FormData handles it
           });
           const data = await res.json();
-          console.log("data", data);
+          console.log("added new post: ", data);
         } catch (err) {
           console.error("Error adding post:", err);
         }
@@ -54,27 +56,34 @@ function adminChecker() {
             body: JSON.stringify({ id, admin }),
           });
           const data = await res.json();
-          console.log("data", data);
+          console.log("deleting post: ", data);
         } catch (err) {
           console.error("Error deleting post:", err);
         }
       }
       // Adding posts
       addButtonPage.classList.remove("hidden");
-      const form = addButtonPage.querySelector("#add-post-form");
+      const form = addButtonPage.querySelector("#addPostForm");
       form.onsubmit = (e) => {
         e.preventDefault();
+
+        if (isUploading) {
+          alert("Please wait — file is still uploading.");
+          return;
+        }
+
         const author = form.querySelector("#author").value;
         const content = form.querySelector("#content").value;
         const title = form.querySelector("#title").value;
         const file = form.querySelector("#fileInput").files[0];
+
         uploadPost(title, author, content, file).then(() => getPosts());
       };
+
       // Deleting posts
       const postsDiv = document.getElementById("posts");
       const posts = postsDiv.querySelectorAll(".post");
       posts.forEach((post) => {
-        console.log("Doing post: ", post);
         const deleteButton = document.createElement("button");
         deleteButton.textContent = "Delete";
         deleteButton.classList.add("delete-button");
@@ -88,138 +97,60 @@ function adminChecker() {
   });
 }
 
-function updateAddPostForm() {
-  const textarea = document.getElementById("content");
-  const preview = document.getElementById("preview");
-  const toolbar = document.querySelector(".toolbar");
-  const md = window.markdownit();
-
-  // Live preview
-  textarea.addEventListener("input", () => {
-    preview.innerHTML = md.render(textarea.value);
-  });
-
-  // Toolbar actions
-  toolbar.addEventListener("click", (e) => {
-    if (e.target.tagName !== "BUTTON") return;
-
-    const action = e.target.dataset.action;
-    const { selectionStart: start, selectionEnd: end, value } = textarea;
-    const selected = value.slice(start, end);
-
-    let snippet = "";
-    switch (action) {
-      case "bold":
-        snippet = `**${selected || "bold text"}**`;
-        break;
-      case "italic":
-        snippet = `*${selected || "italic text"}*`;
-        break;
-      case "header":
-        snippet = `# ${selected || "Heading"}`;
-        break;
-      case "link":
-        snippet = `[${selected || "link text"}](http://)`;
-        break;
-      case "list":
-        snippet = `- ${selected || "list item"}`;
-        break;
-    }
-
-    textarea.setRangeText(snippet, start, end, "end");
-    textarea.dispatchEvent(new Event("input")); // re-render preview
-    textarea.focus();
-  });
-
-  // Upload image and insert markdown link
-  async function uploadImage(file) {
-    const formData = new FormData();
-    formData.append("admin", admin); // auth check
-    formData.append("file", file);
-
-    const res = await fetch("/api/files/upload", {
-      method: "POST",
-      body: formData,
-    });
-    const data = await res.json();
-
-    if (data.success) {
-      const markdown = `![${file.name}](${data.url})`;
-      const start = textarea.selectionStart;
-      textarea.setRangeText(markdown, start, start, "end");
-      textarea.dispatchEvent(new Event("input"));
-    } else {
-      alert("Image upload failed");
-    }
-  }
-
-  // Paste support
-  textarea.addEventListener("paste", (e) => {
-    const items = e.clipboardData.items;
-    for (const item of items) {
-      if (item.type.startsWith("image/")) {
-        const file = item.getAsFile();
-        uploadImage(file);
-      }
-    }
-  });
-
-  // Drag & drop support
-  textarea.addEventListener("dragover", (e) => e.preventDefault());
-  textarea.addEventListener("drop", (e) => {
-    e.preventDefault();
-    for (const file of e.dataTransfer.files) {
-      if (file.type.startsWith("image/")) {
-        uploadImage(file);
-      }
-    }
-  });
-  // --- Auto upload from upload box ---
-  const fileInput = document.getElementById("fileInput");
+function updateAddPostForm(admin) {
+  const form = document.getElementById("addPostForm");
+  const fileInput = form.querySelector("#fileInput");
   const uploadProgress = document.getElementById("uploadProgress");
+  const textarea = form.querySelector("#content");
 
-  fileInput.addEventListener("change", () => {
-    const file = fileInput.files[0];
-    if (!file) return;
+  // fileInput.addEventListener("change", () => {
+  //   const file = fileInput.files[0];
+  //   if (!file) return;
 
-    const formData = new FormData();
-    formData.append("admin", admin);
-    formData.append("file", file);
+  //   const formData = new FormData();
+  //   formData.append("admin", admin);
+  //   formData.append("file", file);
 
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/api/files/upload");
+  //   const xhr = new XMLHttpRequest();
+  //   xhr.open("POST", "/api/files/upload");
 
-    xhr.upload.addEventListener("progress", (e) => {
-      if (e.lengthComputable) {
-        uploadProgress.hidden = false;
-        uploadProgress.value = Math.round((e.loaded / e.total) * 100);
-      }
-    });
+  //   isUploading = true;
+  //   uploadProgress.hidden = false;
+  //   uploadProgress.value = 0;
 
-    xhr.onload = () => {
-      uploadProgress.hidden = true;
-      if (xhr.status === 200) {
-        const res = JSON.parse(xhr.responseText);
-        if (res.success) {
-          const mdLink = `![${file.name}](${res.url})`;
-          const start = textarea.selectionStart;
-          textarea.setRangeText(mdLink, start, start, "end");
-          textarea.dispatchEvent(new Event("input"));
-        } else {
-          alert("Upload failed: " + res.message);
-        }
-      } else {
-        alert("Server error: " + xhr.statusText);
-      }
-    };
+  //   xhr.upload.addEventListener("progress", (e) => {
+  //     if (e.lengthComputable) {
+  //       uploadProgress.value = Math.round((e.loaded / e.total) * 100);
+  //     }
+  //   });
 
-    xhr.onerror = () => {
-      uploadProgress.hidden = true;
-      alert("Network error while uploading.");
-    };
+  //   xhr.onload = () => {
+  //     isUploading = false;
+  //     uploadProgress.hidden = true;
 
-    xhr.send(formData);
-  });
+  //     if (xhr.status === 200) {
+  //       const res = JSON.parse(xhr.responseText);
+  //       if (res.success) {
+  //         const mdLink = `![${file.name}](${res.url})`;
+  //         const start = textarea.selectionStart;
+  //         textarea.setRangeText(mdLink, start, start, "end");
+  //         textarea.dispatchEvent(new Event("input"));
+  //       } else {
+  //         alert("Upload failed: " + res.message);
+  //       }
+  //     } else {
+  //       alert("Server error: " + xhr.statusText);
+  //     }
+  //   };
+
+  //   xhr.onerror = () => {
+  //     isUploading = false;
+  //     uploadProgress.hidden = true;
+  //     alert("Network error while uploading.");
+  //   };
+
+  //   xhr.send(formData);
+  // });
 }
 
 const POSTS_PER_PAGE = 5;

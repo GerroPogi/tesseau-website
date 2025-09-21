@@ -35,6 +35,57 @@
 
     <div class="container">
       <h1>Welcome to Tesseau</h1>
+      <!-- Add Post Form (only shows if admin) -->
+      <div id="add-post-container" class="hidden">
+        <form id="addPostForm" class="add-post-form">
+          <input
+            type="text"
+            id="title"
+            name="title"
+            placeholder="Post title"
+            required
+          />
+          <input
+            type="text"
+            id="author"
+            name="author"
+            placeholder="Author"
+            required
+          />
+
+          <!-- Toolbar -->
+          <div class="toolbar">
+            <button type="button" data-action="bold"><b>B</b></button>
+            <button type="button" data-action="italic"><i>I</i></button>
+            <button type="button" data-action="header">H</button>
+            <button type="button" data-action="link">🔗</button>
+            <button type="button" data-action="list">• List</button>
+          </div>
+
+          <textarea
+            id="content"
+            placeholder="Write your post…"
+            rows="8"
+          ></textarea>
+          <div id="preview" class="preview"></div>
+
+          <div id="upload-placeholder"></div>
+          <script>
+            fetch("/widgets/upload_box.html")
+              .then((res) => res.text())
+              .then((html) => {
+                document.getElementById("upload-placeholder").innerHTML = html;
+                // Manually run upload_box.js after injection
+                const script = document.createElement("script");
+                script.src = "/widgets/js/upload_box.js";
+                document.body.appendChild(script);
+              });
+          </script>
+
+          <button type="submit">Add Post</button>
+        </form>
+      </div>
+
       <div id="posts"></div>
       <span id="togglePostsBtn" class="load-more hidden">Load more…</span>
 

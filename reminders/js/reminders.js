@@ -1,6 +1,6 @@
 const URLParams = new URLSearchParams(window.location.search);
-const owner_token = URLParams.get("admin") || "";
-let admin = false;
+const admin = URLParams.get("admin") || "";
+let ISADMIN = false;
 
 const md = window.markdownit();
 
@@ -34,29 +34,7 @@ function add_addButton() {
     const files = document.getElementById("fileInput").files;
     addReminderSection.classList.add("hidden");
     let fileKeys = [];
-    // Upload to data first
-    if (files.length > 0) {
-      const uploadPromises = Array.from(files).map((file) => {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("admin", owner_token);
-        return fetch("/api/files/upload", { method: "POST", body: formData })
-          .then((res) => res.json())
-          .then((data) => data.fileKey);
-      });
-      Promise.all(uploadPromises)
-        .then((keys) => {
-          fileKeys = keys;
-          console.log("fileKeys", fileKeys);
-          sendReminder();
-        })
-        .catch((error) => {
-          console.error("Error uploading file:", error);
-        });
-    } else {
-      fileKey = "";
-      sendReminder();
-    }
+    sendReminder();
     function sendReminder() {
       fetch("/api/reminders/new", {
         method: "POST",
@@ -68,7 +46,7 @@ function add_addButton() {
           deadline,
           type,
           reference,
-          owner_token,
+          owner_token: admin,
           fileKeys,
         }),
       })
@@ -158,7 +136,7 @@ function updateTextArea() {
 
 isAdmin().then((data) => {
   console.log("data", data);
-  admin = data;
+  ISADMIN = data;
   if (data) {
     add_reminder_btn = document.getElementById("addReminderBtn");
     // Show admin features
@@ -454,7 +432,7 @@ function deleteReminder(id) {
   fetch(`/api/reminders/delete`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id, owner_token }),
+    body: JSON.stringify({ id, owner_token: admin }),
   })
     .then((response) => response.json())
     .then((data) => {
@@ -554,7 +532,7 @@ function editReminderDetail(id, field, currentValue) {
   fetch(`/api/reminders/update`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id, field, value: newValue, owner_token }),
+    body: JSON.stringify({ id, field, value: newValue, owner_token: admin }),
   })
     .then((response) => response.json())
     .then((data) => {

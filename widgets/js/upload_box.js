@@ -68,6 +68,25 @@ function uploadFile(file, current, total) {
       if (xhr.status === 200) {
         const res = JSON.parse(xhr.responseText);
         status.textContent = `Uploaded ${file.name} (${current}/${total})`;
+
+        // Read any existing keys
+        let fileKeys = [];
+        if (status.dataset.filekeys) {
+          try {
+            fileKeys = JSON.parse(status.dataset.filekeys);
+            console.log("Existing file keys:", fileKeys);
+          } catch (e) {
+            console.warn("Failed to parse fileKeys dataset", e);
+          }
+        }
+
+        // Add new key and save back
+        fileKeys.push(res.fileKey);
+        console.log("New file key:", res.fileKey, "File keys now:", fileKeys);
+        status.dataset.filekeys = JSON.stringify(fileKeys);
+
+        console.log("Updated file keys:", status.dataset.filekeys);
+
         resolve(res.fileKey); // return the key
       } else {
         status.textContent = `Error uploading ${file.name}`;

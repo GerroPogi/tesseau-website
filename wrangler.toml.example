@@ -5,5 +5,10 @@ compatibility_date = "2025-08-30"
 
 [[d1_databases]]
 binding = "tesseau_db"
-database_name = "tesseau"        # Local SQLite file path
-database_id = "5a51993e-9701-428d-b49b-2229ceb48ef5"
+database_name = "tesseau"       
+
+[[r2_buckets]]
+binding = "tesseau_r2"
+bucket_name = "tesseau-bucket"
+preview_bucket_name = "tesseau-dev"
+

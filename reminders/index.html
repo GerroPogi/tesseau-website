@@ -32,6 +32,17 @@
         <form id="add-reminder-form" class="add-reminder-form">
             <input type="text" id="title" name="title" required placeholder="Title"><br>
             <div id = "content-placeholder"></div>
+            <script>
+              fetch("/widgets/content_box.html")
+                .then((res) => res.text())
+                .then((html) => {
+                  document.getElementById("content-placeholder").innerHTML = html;
+                  // console.log(addReminderSection.getElementById("content-placeholder"));
+                  const script = document.createElement("script");
+                  script.src = "/widgets/js/content-box.js";
+                  document.body.appendChild(script);
+                });
+            </script>
             <select id="subject" name="subject" required>
                 <option value="">Filter by subject</option>
                 <option>Intro to Philosophy</option>
@@ -61,7 +72,6 @@
                 fetch("/widgets/upload_box.html")
                     .then(res => res.text())
                     .then(html => {
-                        
                         document.getElementById("upload-placeholder").innerHTML = html;
                         const script = document.createElement("script");
                         script.src = "/widgets/js/upload_box.js";

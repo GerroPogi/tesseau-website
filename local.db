@@ -1,7 +1,0 @@
-CREATE TABLE posts (
-  id integer primary key autoincrement,
-  title text not null,
-  author text not null,
-  date_added datetime not null,
-  content datetime not null
-  )

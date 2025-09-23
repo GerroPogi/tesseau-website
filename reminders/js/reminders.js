@@ -12,16 +12,6 @@ function add_addButton() {
   const addReminderSection = document.getElementById("add-reminder");
   addReminderSection.classList.remove("hidden");
 
-  fetch("/widgets/content_box.html")
-    .then((res) => res.text())
-    .then((html) => {
-      addReminderSection.querySelector("#content-placeholder").innerHTML = html;
-      // console.log(addReminderSection.getElementById("content-placeholder"));
-      const script = document.createElement("script");
-      script.src = "/widgets/js/content-box.js";
-      document.body.appendChild(script);
-    });
-
   const addReminderForm = document.getElementById("add-reminder-form");
   addReminderForm.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -31,7 +21,10 @@ function add_addButton() {
     const deadline = document.getElementById("deadline").value;
     const type = document.getElementById("type").value;
     const reference = document.getElementById("reference").value || "";
-    const files = document.getElementById("fileInput").files;
+    const files = document.getElementById("uploadStatus").dataset.filekeys
+      ? JSON.parse(document.getElementById("uploadStatus").dataset.filekeys)
+      : [];
+
     addReminderSection.classList.add("hidden");
     let fileKeys = [];
     sendReminder();
@@ -47,13 +40,14 @@ function add_addButton() {
           type,
           reference,
           owner_token: admin,
-          fileKeys,
+          fileKeys: files,
         }),
       })
         .then((response) => response.json())
         .then((data) => {
           console.log("sending reminder: ", data);
           updateList();
+          document.getElementById("uploadStatus").dataset.filekeys = "[]";
           addReminderForm.reset();
         })
         .catch((error) => {
@@ -744,6 +738,7 @@ function addReminder(reminder, isValid) {
         img.style.maxWidth = "100%";
         img.style.objectFit = "contain";
         fileDiv.appendChild(img);
+        fileDiv.appendChild(document.createElement("br"));
       } else {
         const a = document.createElement("a");
         a.href = `/api/files/${file}`;
@@ -751,6 +746,7 @@ function addReminder(reminder, isValid) {
         a.rel = "noopener";
         a.textContent = file.replace(/^[\d-]+-/, "");
         fileDiv.appendChild(a);
+        fileDiv.appendChild(document.createElement("br"));
       }
     });
 

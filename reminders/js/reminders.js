@@ -13,7 +13,7 @@ function add_addButton() {
   addReminderSection.classList.remove("hidden");
 
   const addReminderForm = document.getElementById("add-reminder-form");
-  addReminderForm.addEventListener("submit", (e) => {
+  addReminderForm.onsubmit((e) => {
     e.preventDefault();
     const subject = document.getElementById("subject").value;
     const title = document.getElementById("title").value;

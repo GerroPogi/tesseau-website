@@ -250,6 +250,7 @@ async function updateList() {
 
     const reminders_list = document.getElementById("reminders-list");
     reminders_list.innerHTML = "";
+    console.log("Refreshing reminders");
 
     const filterDate = document.getElementById("filterDate").value;
     data = data.filter((r) =>
@@ -535,7 +536,6 @@ function editReminderDetail(id, field, currentValue) {
       } else {
         alert("Failed to update reminder.");
       }
-      updateList();
     })
     .catch((error) => {
       console.error("Error updating reminder:", error);

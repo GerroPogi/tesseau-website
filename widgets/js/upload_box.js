@@ -90,6 +90,9 @@ function uploadFile(file, current, total) {
         resolve(res.fileKey); // return the key
       } else {
         status.textContent = `Error uploading ${file.name}`;
+        if (xhr.status === 401) {
+          status.textContent = "Only admins can upload files";
+        }
         reject(new Error(xhr.statusText));
       }
     };

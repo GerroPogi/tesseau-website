@@ -13,7 +13,9 @@ function add_addButton() {
   addReminderSection.classList.remove("hidden");
 
   const addReminderForm = document.getElementById("add-reminder-form");
-  addReminderForm.onsubmit((e) => {
+  addReminderForm.onsubmit = (e) => {
+    console.log("Adding reminder...");
+    showToast("Adding reminder...", "info"); // ✅ Feedback when form is opened
     e.preventDefault();
     const subject = document.getElementById("subject").value;
     const title = document.getElementById("title").value;
@@ -26,10 +28,9 @@ function add_addButton() {
       : [];
 
     addReminderSection.classList.add("hidden");
-    let fileKeys = [];
     sendReminder();
     function sendReminder() {
-      fetch("/api/reminders/new", {
+      fetch(ISADMIN ? "/api/reminders/new" : "/api/reminders/suggestion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -46,15 +47,17 @@ function add_addButton() {
         .then((response) => response.json())
         .then((data) => {
           console.log("sending reminder: ", data);
+          showToast("Reminder added successfully!", "success"); // ✅ Success toast
           updateList();
           document.getElementById("uploadStatus").dataset.filekeys = "[]";
           addReminderForm.reset();
         })
         .catch((error) => {
           console.error("Error adding reminder:", error);
+          showToast("Error adding reminder. Please try again.", "error"); // ✅ Error toast
         });
     }
-  });
+  };
 }
 
 function isDateValid(dateStr) {
@@ -132,20 +135,20 @@ isAdmin().then((data) => {
   console.log("data", data);
   ISADMIN = data;
   if (data) {
-    add_reminder_btn = document.getElementById("addReminderBtn");
-    // Show admin features
-    add_reminder_btn.classList.remove("hidden");
-    // Unhide the add reminder section
-    add_reminder_btn.onclick = () => {
-      // Focus on the form after showing it
-      setTimeout(() => {
-        add_addButton();
-        document.getElementById("add-reminder-form").focus();
-      }, 0);
-    };
   } else {
     console.log("Admin mode disabled");
   }
+  add_reminder_btn = document.getElementById("addReminderBtn");
+  // Show admin features
+  add_reminder_btn.classList.remove("hidden");
+  // Unhide the add reminder section
+  add_reminder_btn.onclick = () => {
+    // Focus on the form after showing it
+    setTimeout(() => {
+      add_addButton();
+      document.getElementById("add-reminder-form").focus();
+    }, 0);
+  };
   updateList();
 });
 
@@ -262,13 +265,13 @@ async function updateList() {
 
     if (data.length === 0) {
       reminders_list.innerHTML = "<p>No reminders found.</p>";
+      showToast("No reminders found.", "info"); // ✅ Info toast for empty list
       return;
     }
 
     data.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
     handleReminders(data);
 
-    // ✅ now you can safely await
     await addCPE();
     await addLT();
 
@@ -283,10 +286,13 @@ async function updateList() {
         }
       });
     });
+
+    showToast("Reminders updated!", "success"); // ✅ Success toast for refresh
   } catch (error) {
     console.error("Error fetching reminders:", error);
     document.getElementById("reminders-list").innerHTML =
       "<p>Error loading reminders. Please try again later.</p>";
+    showToast("Error loading reminders!", "error"); // ✅ Error toast
   }
 
   updateTextArea();
@@ -421,7 +427,7 @@ function getSubjectDiv(subject) {
 
 function deleteReminder(id) {
   if (!admin) {
-    alert("You are not authorized to delete reminders.");
+    showToast("Not authorized to delete reminders.", "error"); // ✅ Better than alert
     return;
   }
   fetch(`/api/reminders/delete`, {
@@ -433,12 +439,15 @@ function deleteReminder(id) {
     .then((data) => {
       console.log("data", data);
       if (data.success) {
+        showToast("Reminder deleted successfully.", "success"); // ✅ Success toast
         updateList();
+      } else {
+        showToast("Failed to delete reminder.", "error"); // ✅ Failure toast
       }
     })
     .catch((error) => {
       console.error("Error deleting reminder:", error);
-      alert("Error deleting reminder. Please try again later.");
+      showToast("Error deleting reminder. Please try again later.", "error"); // ✅ Error toast
     });
 }
 

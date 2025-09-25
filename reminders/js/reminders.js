@@ -47,7 +47,12 @@ function add_addButton() {
         .then((response) => response.json())
         .then((data) => {
           console.log("sending reminder: ", data);
-          showToast("Reminder added successfully!", "success"); // ✅ Success toast
+          showToast(
+            ISADMIN
+              ? "Reminder added successfully!"
+              : "This is an experimental function. Your reminder will show up eventually",
+            "success"
+          ); // ✅ Success toast
           updateList();
           document.getElementById("uploadStatus").dataset.filekeys = "[]";
           addReminderForm.reset();

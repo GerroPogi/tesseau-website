@@ -1,107 +1,139 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8" />
-  <title>Reminders</title>
-  <link href = "/css/base.css" rel="stylesheet">
-  <link href = "css/reminders.css" rel="stylesheet">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="/js/admin.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
-  
-
-</head>
-<body>
-  <div id="navbar-placeholder"></div>
-  <script src = "/widgets/js/navbar.js"></script>
-  <script>
-  fetch("/widgets/navbar.html")
-      .then(res => res.text())
-      .then(html => {
+  <head>
+    <meta charset="UTF-8" />
+    <title>Reminders</title>
+    <link href="/css/base.css" rel="stylesheet" />
+    <link href="css/reminders.css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="/js/admin.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
+  </head>
+  <body>
+    <div id="navbar-placeholder"></div>
+    <script src="/widgets/js/navbar.js"></script>
+    <script>
+      fetch("/widgets/navbar.html")
+        .then((res) => res.text())
+        .then((html) => {
           document.getElementById("navbar-placeholder").innerHTML = html;
           // Manually run navbar.js after injection
-          
-      });
-  </script>
-  <div class = "container">
-    
-    <textarea id="add-reminder-textarea" class="hidden" placeholder="The reminder will be seen here..." ></textarea>
-    <div id = "add-reminder" class ="hidden">
-      <h2>Add Reminder</h2>
+        });
+    </script>
+    <div class="container">
+      <textarea
+        id="add-reminder-textarea"
+        class="hidden"
+        placeholder="The reminder will be seen here..."
+      ></textarea>
+      <div id="add-reminder" class="hidden">
+        <h2>Add Reminder</h2>
         <form id="add-reminder-form" class="add-reminder-form">
-            <input type="text" id="title" name="title" required placeholder="Title"><br>
-            <input type="text" id="creator" name="creator" required placeholder="Creator (Optional)"><br>
-            <div id = "content-placeholder"></div>
-            <script>
-              fetch("/widgets/content_box.html")
-                .then((res) => res.text())
-                .then((html) => {
-                  document.getElementById("content-placeholder").innerHTML = html;
-                  // console.log(addReminderSection.getElementById("content-placeholder"));
-                  const script = document.createElement("script");
-                  script.src = "/widgets/js/content-box.js";
-                  document.body.appendChild(script);
-                });
-            </script>
-            <select id="subject" name="subject" required>
-                <option value="">Filter by subject</option>
-                <option>Intro to Philosophy</option>
-                <option>Earth and Space Science 1</option>
-                <option>Finite Math 1</option>
-                <option>English</option>
-                <option>Filipino</option>
-                <option>General Math</option>
-                <option>General Science</option>
-                <option>Life and Career Skills</option>
-                <option>Pag-aaral ng Kasaysayan at Lipunang Pilipino</option>
-            </select><br>
-            <input type="date" id="deadline" name="deadline" required placeholder="Deadline"><br>
-            <input type="text" id="reference" name="reference" placeholder="Reference (Optional)"><br>
-            <select id="type" name="type" required>
-                <option value="">Select Type of Activity</option>
-                <option value="groupings">Groupings</option>
-                <option value="lt">Long Test</option>
-                <option value="cpe">Check-Point Exam (CPE)</option>
-                <option value="pt">Performance Task</option>
-                <option value="las">Learning Activity Sheet (LAS)</option>
-                <option value="activity">Activity</option>
-                <option value="requirement">Requirement</option>
-            </select><br>
-            <div id="upload-placeholder"></div>
-            <script>
-                fetch("/widgets/upload_box.html")
-                    .then(res => res.text())
-                    .then(html => {
-                        document.getElementById("upload-placeholder").innerHTML = html;
-                        const script = document.createElement("script");
-                        script.src = "/widgets/js/upload_box.js";
-                        document.body.appendChild(script);
-                    });
-                
-            </script>
-            <button type="submit">Add Reminder</button>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            required
+            placeholder="Title"
+          /><br />
+          <input
+            type="text"
+            id="creator"
+            name="creator"
+            required
+            placeholder="Creator (Optional)"
+          /><br />
+          <div id="content-placeholder"></div>
+          <script>
+            fetch("/widgets/content_box.html")
+              .then((res) => res.text())
+              .then((html) => {
+                document.getElementById("content-placeholder").innerHTML = html;
+                // console.log(addReminderSection.getElementById("content-placeholder"));
+                const script = document.createElement("script");
+                script.src = "/widgets/js/content-box.js";
+                document.body.appendChild(script);
+              });
+          </script>
+          <select id="subject" name="subject" required>
+            <option value="">Filter by subject</option>
+            <option>Intro to Philosophy</option>
+            <option>Earth and Space Science 1</option>
+            <option>Finite Math 1</option>
+            <option>English</option>
+            <option>Filipino</option>
+            <option>General Math</option>
+            <option>General Science</option>
+            <option>Life and Career Skills</option>
+            <option>
+              Pag-aaral ng Kasaysayan at Lipunang Pilipino
+            </option></select
+          ><br />
+          <input
+            type="date"
+            id="deadline"
+            name="deadline"
+            required
+            placeholder="Deadline"
+          /><br />
+          <input
+            type="text"
+            id="reference"
+            name="reference"
+            placeholder="Reference (Optional)"
+          /><br />
+          <select id="type" name="type" required>
+            <option value="">Select Type of Activity</option>
+            <option value="groupings">Groupings</option>
+            <option value="lt">Long Test</option>
+            <option value="cpe">Check-Point Exam (CPE)</option>
+            <option value="pt">Performance Task</option>
+            <option value="las">Learning Activity Sheet (LAS)</option>
+            <option value="activity">Activity</option>
+            <option value="requirement">Requirement</option></select
+          ><br />
+          <div id="upload-placeholder"></div>
+          <script>
+            fetch("/widgets/upload_box.html")
+              .then((res) => res.text())
+              .then((html) => {
+                document.getElementById("upload-placeholder").innerHTML = html;
+                const script = document.createElement("script");
+                script.src = "/widgets/js/upload_box.js";
+                document.body.appendChild(script);
+              });
+          </script>
+          <button type="submit">Add Reminder</button>
         </form>
-    </div>
-    <div id="reminder-suggestions" class ="hidden">
-      <h2>Suggestions</h2>
-      <div id="suggestionsList" class="reminder-subjects"></div>
-    </div>
-
-    <div class ="reminders-section">
-      <h1>Reminders</h1> 
-      <span id = "all" class = "section">All</span> | 
-      <span id = "tesla" class = "section">Tesla</span> | 
-      <span id = "rousseau" class = "section">Rousseau</span> 
-      <input type=  "date" id="filterDate">
-      <button id="addReminderBtn">+ Add Reminder</button> 
-
-      <hr>
-      <div class="reminders-list" id="reminders-list">
-        <!-- Reminders will be loaded here -->
       </div>
-    
+      <div id="reminder-suggestions" class="hidden">
+        <h2>Suggestions</h2>
+        <div id="suggestionsList" class="reminder-subjects"></div>
+      </div>
+
+      <div class="reminders-section">
+        <h1>Reminders</h1>
+        <span id="all" class="section">All</span> |
+        <span id="tesla" class="section">Tesla</span> |
+        <span id="rousseau" class="section">Rousseau</span>
+        <input type="date" id="filterDate" />
+        <button id="addReminderBtn">+ Add Reminder</button>
+
+        <hr />
+        <div class="reminders-list" id="reminders-list">
+          <!-- Reminders will be loaded here -->
+        </div>
+      </div>
     </div>
-  
     <script src="js/reminders.js"></script>
+    <div id="footnote-placeholder"></div>
+    <link href="/widgets/css/footnote.css" rel="stylesheet" />
+    <script>
+      fetch("/widgets/footnote.html")
+        .then((res) => res.text())
+        .then((html) => {
+          document.getElementById("footnote-placeholder").innerHTML = html;
+        });
+    </script>
   </body>
 </html>

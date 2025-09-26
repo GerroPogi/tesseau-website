@@ -1,0 +1,71 @@
+.form-container {
+  margin: 0 auto;
+  padding: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.form-container label {
+  display: block;
+  /* margin-bottom: 8px; */
+  font-weight: bold;
+  color: #2d3748;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  margin: 15px;
+  display: inline-block;
+}
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  display: flex;
+}
+
+.form-group textarea {
+  width: 100%;
+  min-height: 200px;
+  resize: vertical; /* allow vertical resizing */
+  box-sizing: border-box;
+  display: flex;
+}
+.responses-container {
+  margin: 0 auto;
+  padding: 10px;
+  margin-top: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+#submit {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.form-container {
+  margin: 0 auto;
+  padding: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* Make the group container flex */
+.form-row {
+  display: flex;
+  gap: 20px; /* space between Name and Email */
+}
+
+/* Each group should expand evenly */
+.form-group {
+  flex: 1; /* take up equal space */
+  display: flex;
+  flex-direction: column; /* stack label on top of input */
+}
+.form-actions {
+  display: flex;
+  justify-content: flex-end; /* push button to the right */
+  margin-top: 15px;
+}

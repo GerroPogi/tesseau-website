@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Suggestions</title>
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="css/suggestions.css" />
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
+  </head>
+  <body>
+    <div id="navbar-placeholder"></div>
+    <script>
+      fetch("/widgets/navbar.html")
+        .then((res) => res.text())
+        .then((html) => {
+          document.getElementById("navbar-placeholder").innerHTML = html;
+        });
+    </script>
+    <script src="/widgets/js/navbar.js"></script>
+    <div class="container">
+      <h1>Suggestions</h1>
+      <p>
+        We value your feedback! Please use the form below to submit any
+        suggestions or ideas you have for improving our website or services.
+      </p>
+      <div class="form-container">
+        <form id="suggestions-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Name (Optional):</label>
+              <input type="text" id="name" name="name" />
+            </div>
+            <div class="form-group">
+              <label for="email">Email (Optional):</label>
+              <input type="email" id="email" name="email" />
+            </div>
+          </div>
+
+          <div id="content-placeholder"></div>
+
+          <link href="/widgets/css/content_box.css" rel="stylesheet" />
+          <script>
+            fetch("/widgets/content_box.html")
+              .then((res) => res.text())
+              .then((html) => {
+                document.getElementById("content-placeholder").innerHTML = html;
+                const script = document.createElement("script");
+                script.src = "/widgets/js/content-box.js";
+                document.body.appendChild(script);
+              });
+          </script>
+          <div class="form-actions">
+            <input type="submit" value="Submit" id="submit" />
+          </div>
+        </form>
+        <div id="responses-container" class="responses-container">
+          <h2>Previous Suggestions</h2>
+        </div>
+      </div>
+    </div>
+    <div id="footnote-placeholder"></div>
+    <link href="/widgets/css/footnote.css" rel="stylesheet" />
+    <script>
+      fetch("/widgets/footnote.html")
+        .then((res) => res.text())
+        .then((html) => {
+          document.getElementById("footnote-placeholder").innerHTML = html;
+        });
+    </script>
+    <script src="/about/forms/suggestions/js/suggestions.js"></script>
+  </body>
+</html>

@@ -99,5 +99,14 @@
       </div>
     </div>
     <script src="/js/index.js"></script>
+    <div id="footnote-placeholder"></div>
+    <link href="/widgets/css/footnote.css" rel="stylesheet" />
+    <script>
+      fetch("/widgets/footnote.html")
+        .then((res) => res.text())
+        .then((html) => {
+          document.getElementById("footnote-placeholder").innerHTML = html;
+        });
+    </script>
   </body>
 </html>

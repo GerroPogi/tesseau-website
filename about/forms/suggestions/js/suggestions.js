@@ -1,0 +1,1 @@
+const md = window.markdownit();

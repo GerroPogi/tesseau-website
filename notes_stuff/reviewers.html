@@ -1,99 +1,115 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8" />
-  <title>Tesseau Reviewers</title>
-  <link href = "/css/base.css" rel="stylesheet">
-  <link href = "css/reviewers.css" rel="stylesheet">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tesseau Reviewers</title>
+    <link href="/css/base.css" rel="stylesheet" />
+    <link href="css/reviewers.css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
     <div id="navbar-placeholder"></div>
-  <script>
-  fetch("/widgets/navbar.html")
-    .then(res => res.text())
-    .then(html => {
-        document.getElementById("navbar-placeholder").innerHTML = html;
-        // Manually run navbar.js after injection
-        const script = document.createElement("script");
-        script.src = "/js/navbar.js";
-        document.body.appendChild(script);
-    });
-  </script>
-  <div class = "container">
-  <!-- 🔎 Search & Filters -->
-  <div class="filters">
-    <input type="text" id="search" placeholder="Search by title..." />
-    <input type="text" id="filterCreator" placeholder="Filter by creator..." />
-    <select id="filterSubject">
-      <option value="">Filter by subject</option>
-      <option value = "itp">Intro to Philosophy</option>
-      <option value = "ess">Earth and Space Science 1</option>
-      <option value = "fm">Finite Math 1</option>
-      <option value = "e">English</option>
-      <option value = "f">Filipino</option>
-      <option value = "gm">General Math</option>
-      <option value = "gs">General Science</option>
-      <option value = "lcs">Life and Career Skills</option>
-      <option value = "k">Pag-aaral ng Kasaysayan at Lipunang Pilipino</option>
-    </select>
-    <input type="date" id="filterDate" />
-    <select id="filterSort">
-      <option value="newestFirst">Newest First</option>
-      <option value="oldestFirst">Oldest First</option>
-      <option value="relevance">Relevance</option>
-    </select>
-  </div>
-
-  <ul id="reviewers" class="review-list"></ul>
-  <div class="pagination">
-
-    <button id="prevPage">←</button>
-    <span id="currentPage">1</span>
-    <button id="nextPage">→</button>
-  </div>
-  <!-- Google Identity Services + API Loader -->
-  <script src="https://apis.google.com/js/api.js"></script>
-  <script src="https://accounts.google.com/gsi/client" r></script>
-
-
-  <script src = "js/picker.js"></script>
-
-  <!-- Review submission and viewing -->
-  
-  <script src = "js/reviewers.js"></script>
-
-  <section>
-    
-    <!-- Picked Files -->
-    <ul id="pickedFiles"></ul>
-
-    <!-- Review submit form -->
-    <form id="reviewForm">
-      <div class="form-row">
-        <input type="text" id="name" placeholder="Enter your name">
-        <input type="text" id="title" placeholder="Enter your title">
-        <select id="subject">
-          <option value="">-- Select Subject --</option>
-          <option>Intro to Philosophy</option>
-          <option>Earth and Space Science 1</option>
-          <option>Finite Math 1</option>
-          <option>English</option>
-          <option>Filipino</option>
-          <option>General Math</option>
-          <option>General Science</option>
-          <option>Life and Career Skills</option>
-          <option>Pag-aaral ng Kasaysayan at Lipunang Pilipino</option>
+    <script>
+      fetch("/widgets/navbar.html")
+        .then((res) => res.text())
+        .then((html) => {
+          document.getElementById("navbar-placeholder").innerHTML = html;
+          // Manually run navbar.js after injection
+          const script = document.createElement("script");
+          script.src = "/js/navbar.js";
+          document.body.appendChild(script);
+        });
+    </script>
+    <div class="container">
+      <!-- 🔎 Search & Filters -->
+      <div class="filters">
+        <input type="text" id="search" placeholder="Search by title..." />
+        <input
+          type="text"
+          id="filterCreator"
+          placeholder="Filter by creator..."
+        />
+        <select id="filterSubject">
+          <option value="">Filter by subject</option>
+          <option value="itp">Intro to Philosophy</option>
+          <option value="ess">Earth and Space Science 1</option>
+          <option value="fm">Finite Math 1</option>
+          <option value="e">English</option>
+          <option value="f">Filipino</option>
+          <option value="gm">General Math</option>
+          <option value="gs">General Science</option>
+          <option value="lcs">Life and Career Skills</option>
+          <option value="k">
+            Pag-aaral ng Kasaysayan at Lipunang Pilipino
+          </option>
+        </select>
+        <input type="date" id="filterDate" />
+        <select id="filterSort">
+          <option value="newestFirst">Newest First</option>
+          <option value="oldestFirst">Oldest First</option>
+          <option value="relevance">Relevance</option>
         </select>
       </div>
-      <textarea id="description" placeholder="Enter your description"></textarea>
-      <button type="button" id="pickFile" onclick="handleAuthClick()">Pick Files</button>
-      <button type="submit">Submit</button>
-    </form>
-    <script src="js/handleSubmit.js"></script>
 
-  </section>
-  </div>
-</body>
+      <ul id="reviewers" class="review-list"></ul>
+      <div class="pagination">
+        <button id="prevPage">←</button>
+        <span id="currentPage">1</span>
+        <button id="nextPage">→</button>
+      </div>
+      <!-- Google Identity Services + API Loader -->
+      <script src="https://apis.google.com/js/api.js"></script>
+      <script src="https://accounts.google.com/gsi/client" r></script>
+
+      <script src="js/picker.js"></script>
+
+      <!-- Review submission and viewing -->
+
+      <script src="js/reviewers.js"></script>
+
+      <section>
+        <!-- Picked Files -->
+        <ul id="pickedFiles"></ul>
+
+        <!-- Review submit form -->
+        <form id="reviewForm">
+          <div class="form-row">
+            <input type="text" id="name" placeholder="Enter your name" />
+            <input type="text" id="title" placeholder="Enter your title" />
+            <select id="subject">
+              <option value="">-- Select Subject --</option>
+              <option>Intro to Philosophy</option>
+              <option>Earth and Space Science 1</option>
+              <option>Finite Math 1</option>
+              <option>English</option>
+              <option>Filipino</option>
+              <option>General Math</option>
+              <option>General Science</option>
+              <option>Life and Career Skills</option>
+              <option>Pag-aaral ng Kasaysayan at Lipunang Pilipino</option>
+            </select>
+          </div>
+          <textarea
+            id="description"
+            placeholder="Enter your description"
+          ></textarea>
+          <button type="button" id="pickFile" onclick="handleAuthClick()">
+            Pick Files
+          </button>
+          <button type="submit">Submit</button>
+        </form>
+        <script src="js/handleSubmit.js"></script>
+      </section>
+    </div>
+
+    <div id="footnote-placeholder"></div>
+    <link href="/widgets/css/footnote.css" rel="stylesheet" />
+    <script>
+      fetch("/widgets/footnote.html")
+        .then((res) => res.text())
+        .then((html) => {
+          document.getElementById("footnote-placeholder").innerHTML = html;
+        });
+    </script>
+  </body>
 </html>

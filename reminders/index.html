@@ -13,15 +13,14 @@
 </head>
 <body>
   <div id="navbar-placeholder"></div>
+  <script src = "/widgets/js/navbar.js"></script>
   <script>
   fetch("/widgets/navbar.html")
       .then(res => res.text())
       .then(html => {
           document.getElementById("navbar-placeholder").innerHTML = html;
           // Manually run navbar.js after injection
-          const script = document.createElement("script");
-          script.src = "/widgets/js/navbar.js";
-          document.body.appendChild(script);
+          
       });
   </script>
   <div class = "container">
@@ -31,6 +30,7 @@
       <h2>Add Reminder</h2>
         <form id="add-reminder-form" class="add-reminder-form">
             <input type="text" id="title" name="title" required placeholder="Title"><br>
+            <input type="text" id="creator" name="creator" required placeholder="Creator (Optional)"><br>
             <div id = "content-placeholder"></div>
             <script>
               fetch("/widgets/content_box.html")
@@ -82,6 +82,11 @@
             <button type="submit">Add Reminder</button>
         </form>
     </div>
+    <div id="reminder-suggestions" class ="hidden">
+      <h2>Suggestions</h2>
+      <div id="suggestionsList" class="reminder-subjects"></div>
+    </div>
+
     <div class ="reminders-section">
       <h1>Reminders</h1> 
       <span id = "all" class = "section">All</span> | 
@@ -97,9 +102,6 @@
     
     </div>
   
-
-  </div>
-    <!-- <script src="/js/reminders.js" defer></script> -->
     <script src="js/reminders.js"></script>
-  </div>
+  </body>
 </html>

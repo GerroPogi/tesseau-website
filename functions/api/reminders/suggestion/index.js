@@ -9,6 +9,7 @@ export async function onRequestPost(context) {
     deadline,
     description,
     type,
+    creator,
     fileKeys: fileKeys_object,
   } = res;
   const date_added = new Date().toISOString();
@@ -20,10 +21,11 @@ export async function onRequestPost(context) {
   );
   const row = await context.env.tesseau_db
     .prepare(
-      "INSERT INTO reminder_suggestions (subject, title, deadline, description, type, date_added, reference, file_key) VALUES (?,?, ?, ?, ?, ?, ?, ?)"
+      "INSERT INTO reminder_suggestions (subject, creator, title, deadline, description, type, date_added, reference, file_key) VALUES (?,?, ?, ?, ?, ?, ?, ?,?)"
     )
     .bind(
       subject,
+      creator,
       title,
       deadline,
       description,
@@ -34,7 +36,7 @@ export async function onRequestPost(context) {
     )
     .run();
   console.log(
-    `New data has been inputed: ${subject}, ${title}, ${deadline}, ${description}, ${type}, ${reference}, ${fileKeys}`
+    `New data has been inputed: ${subject}, ${creator}, ${title}, ${deadline}, ${description}, ${type}, ${reference}, ${fileKeys}`
   );
   // Fetch the last inserted row id safely
   const insertedId = row?.meta?.last_row_id ?? null;
@@ -46,6 +48,7 @@ export async function onRequestPost(context) {
       success: true,
       id: insertedId,
       subject,
+      creator,
       title,
       deadline,
       description,

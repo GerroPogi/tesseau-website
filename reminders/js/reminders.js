@@ -14,9 +14,8 @@ function add_addButton() {
 
   const addReminderForm = document.getElementById("add-reminder-form");
   addReminderForm.onsubmit = (e) => {
-    console.log("Adding reminder...");
-    showToast("Adding reminder...", "info"); // ✅ Feedback when form is opened
     e.preventDefault();
+
     const subject = document.getElementById("subject").value;
     const title = document.getElementById("title").value;
     const description = document.getElementById("content").value;
@@ -26,42 +25,47 @@ function add_addButton() {
     const files = document.getElementById("uploadStatus").dataset.filekeys
       ? JSON.parse(document.getElementById("uploadStatus").dataset.filekeys)
       : [];
+    const creator = document.getElementById("creator").value || "Anonymous";
 
-    addReminderSection.classList.add("hidden");
-    sendReminder();
-    function sendReminder() {
-      fetch(ISADMIN ? "/api/reminders/new" : "/api/reminders/suggestion", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          subject,
-          title,
-          description,
-          deadline,
-          type,
-          reference,
-          owner_token: admin,
-          fileKeys: files,
-        }),
+    // Admins = direct, Others = suggestion
+    const apiURL = ISADMIN ? "/api/reminders/new" : "/api/reminders/suggestion";
+    const successMsg = ISADMIN
+      ? "Reminder added successfully!"
+      : "Suggestion submitted! An admin will review it soon.";
+
+    showToast(
+      ISADMIN ? "Adding reminder..." : "Submitting suggestion...",
+      "info"
+    );
+
+    fetch(apiURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        subject,
+        title,
+        description,
+        deadline,
+        type,
+        reference,
+        owner_token: admin,
+        fileKeys: files,
+        creator,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("submit result: ", data);
+        showToast(successMsg, "success");
+        updateList();
+        document.getElementById("uploadStatus").dataset.filekeys = "[]";
+        addReminderForm.reset();
+        addReminderSection.classList.add("hidden");
       })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("sending reminder: ", data);
-          showToast(
-            ISADMIN
-              ? "Reminder added successfully!"
-              : "This is an experimental function. Your reminder will show up eventually",
-            "success"
-          ); // ✅ Success toast
-          updateList();
-          document.getElementById("uploadStatus").dataset.filekeys = "[]";
-          addReminderForm.reset();
-        })
-        .catch((error) => {
-          console.error("Error adding reminder:", error);
-          showToast("Error adding reminder. Please try again.", "error"); // ✅ Error toast
-        });
-    }
+      .catch((error) => {
+        console.error("Error submitting reminder:", error);
+        showToast("Error. Please try again later.", "error");
+      });
   };
 }
 
@@ -136,10 +140,72 @@ function updateTextArea() {
   });
 }
 
+function renderSuggestions(suggestions) {
+  const wrapper = document.getElementById("suggestionsList");
+  wrapper.innerHTML = "";
+
+  // Group by subject
+  const grouped = {};
+  suggestions.forEach((s) => {
+    if (!grouped[s.subject]) grouped[s.subject] = [];
+    grouped[s.subject].push(s);
+  });
+
+  Object.keys(grouped).forEach((subject) => {
+    const subjectDiv = document.createElement("div");
+    subjectDiv.classList.add("reminder-subject");
+
+    const h3 = document.createElement("h3");
+    h3.textContent = subject.toUpperCase();
+    subjectDiv.appendChild(h3);
+    const subjectWrapper = document.createElement("div");
+    subjectWrapper.classList.add("reminder-wrapper", "hidden");
+    subjectDiv.appendChild(subjectWrapper);
+
+    grouped[subject].forEach((s) => {
+      const card = document.createElement("div");
+      card.classList.add("reminder-card", "suggestion-card");
+
+      card.innerHTML = `
+        <div class="badge">Suggestion</div>
+        <h4>${s.title}</h4>
+        <p>${s.description || ""}</p>
+        <small>Deadline: ${s.deadline || "None"}</small>
+      `;
+
+      // Admin-only buttons
+      if (ISADMIN) {
+        const btns = document.createElement("div");
+        btns.style.marginTop = "8px";
+
+        const approveBtn = document.createElement("button");
+        approveBtn.textContent = "✅ Approve";
+        approveBtn.onclick = () => approveSuggestion(s);
+
+        const rejectBtn = document.createElement("button");
+        rejectBtn.textContent = "❌ Reject";
+        rejectBtn.onclick = () => rejectSuggestion(s.id);
+
+        btns.appendChild(approveBtn);
+        btns.appendChild(rejectBtn);
+        card.appendChild(btns);
+      }
+
+      subjectWrapper.appendChild(card);
+    });
+    subjectDiv.onclick = () => subjectWrapper.classList.toggle("hidden");
+    wrapper.appendChild(subjectDiv);
+    wrapper.appendChild(subjectWrapper);
+  });
+}
+
 isAdmin().then((data) => {
   console.log("data", data);
   ISADMIN = data;
   if (data) {
+    console.log("Admin mode enabled");
+    handle_suggestions();
+    document.getElementById("creator").classList.add("hidden");
   } else {
     console.log("Admin mode disabled");
   }
@@ -156,6 +222,58 @@ isAdmin().then((data) => {
   };
   updateList();
 });
+
+function approveSuggestion(reminder) {
+  fetch("/api/reminders/new", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ...reminder,
+      fileKeys: reminder.file_key,
+      owner_token: admin,
+    }),
+  })
+    .then((r) => r.json())
+    .then(() => {
+      showToast("Suggestion approved and added!", "success");
+      rejectSuggestion(reminder.id);
+    })
+    .catch((err) => {
+      console.error("Approve failed", err);
+      showToast("Error approving suggestion.", "error");
+    });
+}
+
+function rejectSuggestion(id) {
+  fetch("/api/reminders/suggestion/delete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, owner_token: admin }),
+  })
+    .then((r) => r.json())
+    .then(() => {
+      showToast("Suggestion rejected.", "info");
+      updateList();
+    })
+    .catch((err) => {
+      console.error("Reject failed", err);
+      showToast("Error rejecting suggestion.", "error");
+    });
+}
+
+function handle_suggestions() {
+  const suggestion_div = document.getElementById("reminder-suggestions");
+  suggestion_div.classList.remove("hidden");
+  fetch("/api/reminders/suggestion/get")
+    .then((response) => response.json())
+    .then((data) => {
+      renderSuggestions(data);
+    })
+    .catch((error) => {
+      console.error("Error fetching suggestions:", error);
+      showToast("Error loading suggestions. Please try again later.", "error"); // ✅ Error toast
+    });
+}
 
 const dayOfTheWeek = [
   "Sunday",
@@ -305,6 +423,7 @@ async function updateList() {
   }
 
   updateTextArea();
+  if (ISADMIN) handle_suggestions();
 }
 
 // Normal subject reminders
@@ -731,16 +850,6 @@ function addReminder(reminder, isValid) {
   fileDiv.classList.add("reminder-detail");
   if (file_key) {
     Array.from(file_key).forEach((file) => {
-      console.log(
-        "Doing: ",
-        file,
-        " for ",
-        reminder.id,
-        "subject",
-        reminder.subject,
-        " title",
-        title
-      );
       const lower = file.toLowerCase();
       if (
         lower.endsWith(".png") ||

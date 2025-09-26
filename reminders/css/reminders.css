@@ -73,6 +73,12 @@
   margin-left: 10px;
   cursor: pointer;
 }
+.reminder-subject h3 {
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 4px;
+}
 
 .reminder-subject:hover {
   text-decoration: underline;
@@ -215,4 +221,37 @@
 
 .reminder-detail a {
   color: #967f00;
+}
+.reminder-suggestions-header {
+  font-size: 1.5em;
+  margin-left: 10px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+/* Shared card look */
+.reminder-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+/* Suggestion variant */
+.suggestion-card {
+  border: 1px dashed #f39c12;
+  background: #fff8e6;
+  position: relative;
+}
+
+.suggestion-card .badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: #f39c12;
+  color: white;
+  padding: 2px 6px;
+  font-size: 0.7rem;
+  border-radius: 4px;
 }

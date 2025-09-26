@@ -200,7 +200,11 @@ async function buildReminderAnnouncement() {
     list.forEach((r) => {
       const deadlineDate = new Date(r.deadline);
       const deadlineDay = dayOfTheWeek[deadlineDate.getDay()];
-      reminderText += `- ${r.title} DL: ${r.deadline} (${deadlineDay})\n`;
+      const todayDate = new Date();
+      const isToday = todayDate.toDateString() === deadlineDate.toDateString();
+      reminderText += `- ${r.title} DL: ${r.deadline} (${
+        isToday ? "Today" : deadlineDay
+      })\n`;
     });
     reminderText += "\n";
   }

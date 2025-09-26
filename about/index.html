@@ -1,85 +1,118 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8" />
-  <title>Tesseau About</title>
-  <link href = "/css/base.css" rel="stylesheet">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <title>About Us</title>
+    <link href="/css/base.css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <style>
+    <style>
+      .page {
+        flex: 1; /* take remaining space */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 5vh 0; /* extra breathing room */
+      }
 
-    .page {
-      flex: 1; /* take remaining space */
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 5vh 0; /* extra breathing room */
-    }
+      .container {
+        width: 75%;
+        height: 80%; /* leaves 10% top & bottom */
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 8px 32px rgba(44, 62, 80, 0.12);
+        padding: 40px 32px;
+        text-align: left;
+        overflow-y: auto; /* scroll if content is tall */
+      }
 
-    .container {
-      width: 75%;
-      height: 80%; /* leaves 10% top & bottom */
-      background: #fff;
-      border-radius: 18px;
-      box-shadow: 0 8px 32px rgba(44, 62, 80, 0.12);
-      padding: 40px 32px;
-      text-align: left;
-      overflow-y: auto; /* scroll if content is tall */
-    }
-
-    .image-container img {
-      margin-left: 10px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-  </style>
-</head>
-<body>
-  <div id="navbar-placeholder"></div>
-  <script>
-  fetch("/widgets/navbar.html")
-      .then(res => res.text())
-      .then(html => {
+      .image-container img {
+        margin-left: 10px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="navbar-placeholder"></div>
+    <script>
+      fetch("/widgets/navbar.html")
+        .then((res) => res.text())
+        .then((html) => {
           document.getElementById("navbar-placeholder").innerHTML = html;
-          // Manually run navbar.js after injection
-          const script = document.createElement("script");
-          script.src = "/js/navbar.js";
-          document.body.appendChild(script);
-      });
-  </script>
-  <div class="page">
-    <div class="container">
-      <h1>About us</h1>
-      <p>Website for <strong>11 - Tesseau (Tesla/Rousseau)</strong> (S.Y. 2025-2026)</p>
-      <span class="image-container">
-        <img src="/assets/me.jpg" alt="Gerro Abarabar" width="135" height="135">
-      </span>
-      <p>This is a simple website made by <strong>Gerro Abarabar of 11 - Tesla</strong></p>
-      <blockquote>
-        <p>&ldquo;I don't know how to code html. Thanks chatgpt lmao&rdquo;</p>
-        <footer>&mdash; Gerro</footer>
-      </blockquote>
-      <h2>Purpose</h2>
-      <p>The purpose of this website is to provide a platform for students of 11 - Tesseau to share and review notes, as well as set reminders for their academic tasks. It aims to enhance collaboration and organization among students.</p>
-      <h2>This website is made using the help of:</h2>
-      <ul>
-        <li>ChatGPT - for coding assistance and suggestions</li>
-        <li>GitHub Copilot - for code completion and ideas</li>
-        <li>Google - for searching and learning</li>
-        <li>Windsurf - for code completions</li>
-      </ul>
-      
-      <h2>Assets used</h2>
-      <ul>
-        <li>Mangro - Font</li>
-        <li>AniTypewriter - Font</li>
-      </ul>
-      <h2>Version Info</h2>
-      <ul>
-        <li>Last updated: June 2024</li>
-        <li>Version: 1.0.0</li>
-      </ul>
+        });
+    </script>
+    <script src="/widgets/js/navbar.js"></script>
+    <div class="page">
+      <div class="container">
+        <h1>About us</h1>
+        <p>
+          Website for <strong>11 - Tesseau (Tesla/Rousseau)</strong> (S.Y.
+          2025-2026)
+        </p>
+        <span class="image-container">
+          <img
+            src="/assets/me.jpg"
+            alt="Gerro Abarabar"
+            width="135"
+            height="135"
+          />
+        </span>
+        <p>
+          This is a simple website made by
+          <strong>Gerro Abarabar of 11 - Tesla</strong>
+        </p>
+        <blockquote>
+          <p>
+            &ldquo;I don't know how to code html. Thanks chatgpt lmao&rdquo;
+          </p>
+          <footer>&mdash; Gerro</footer>
+        </blockquote>
+        <h2>Purpose</h2>
+        <p>
+          The purpose of this website is to provide a platform for students of
+          11 - Tesseau to share and review notes, as well as set reminders for
+          their academic tasks. It aims to enhance collaboration and
+          organization among students.
+        </p>
+        <h2>This website is made using the help of:</h2>
+        <ul>
+          <li>ChatGPT - for coding assistance and suggestions</li>
+          <li>GitHub Copilot - for code completion and ideas</li>
+          <li>Google - for searching and learning</li>
+          <li>Windsurf - for code completions</li>
+        </ul>
+
+        <h2>Assets used</h2>
+        <ul>
+          <li>Mangro - Font</li>
+          <li>AniTypewriter - Font</li>
+        </ul>
+        <h2>Socials</h2>
+        <a href="https://www.instagram.com/tesseau.archives/"
+          ><img src="/assets/ig.png" alt="Instagram" width="24" height="24"
+        /></a>
+        <a href="https://www.facebook.com/profile.php?id=61578991087272"
+          ><img src="/assets/fb.png" alt="Facebook" width="24" height="24"
+        /></a>
+        <a href="https://github.com/GerroPogi/tesseau-website"
+          ><img src="/assets/github.png" alt="GitHub" width="24" height="24"
+        /></a>
+        <h2>Version Info</h2>
+        <ul>
+          <li>Last updated: June 2024</li>
+          <li>Version: 1.0.0</li>
+        </ul>
+      </div>
     </div>
-  </div>
-</body>
+    <div id="footnote-placeholder"></div>
+    <link href="/widgets/css/footnote.css" rel="stylesheet" />
+    <script>
+      fetch("/widgets/footnote.html")
+        .then((res) => res.text())
+        .then((html) => {
+          document.getElementById("footnote-placeholder").innerHTML = html;
+        });
+    </script>
+  </body>
 </html>

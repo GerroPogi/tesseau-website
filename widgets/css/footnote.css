@@ -1,0 +1,32 @@
+.tesseau-footnote {
+  font-size: 0.8em;
+  vertical-align: super;
+  line-height: 1;
+  position: relative;
+  top: -0.5em;
+  text-align: center;
+  padding: 1em 0;
+  background: #292929;
+}
+
+.tesseau-footnote p {
+  color: #eeeeee;
+  margin: 0.2em 0;
+}
+
+.tesseau-footnote a {
+  color: #eeeeee;
+  text-decoration: none;
+}
+.tesseau-footnote a:hover {
+  color: #cacaca;
+}
+.tesseau-footnote img {
+  height: 1.5em;
+  margin: 0 0.5em;
+  vertical-align: middle;
+  filter: invert(1);
+}
+.tesseau-footnote p {
+  margin-bottom: 0.5em;
+}

@@ -675,7 +675,7 @@ function addReminder(reminder, isValid) {
                 (${Math.ceil(
                   Math.abs(new Date(deadline) - new Date()) /
                     (1000 * 60 * 60 * 24)
-                )} days left)
+                )} days ${new Date(deadline) < new Date() ? "ago" : "left"})
                 </span>
                 ${
                   admin

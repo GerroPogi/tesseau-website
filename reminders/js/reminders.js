@@ -378,47 +378,80 @@ async function updateList() {
     let data = await response.json();
 
     const reminders_list = document.getElementById("reminders-list");
-    reminders_list.innerHTML = "";
+    reminders_list.innerHTML = `
+      <div id="valid-reminders"><h2>Current Reminders</h2></div>
+      <div id="invalid-reminders"><h2>Past Reminders</h2></div>
+    `;
+
     console.log("Refreshing reminders");
 
+    // 🎯 Focus logic
     const filterDate = document.getElementById("filterDate").value;
-    data = data.filter((r) =>
-      filterDate
-        ? new Date(r.deadline).toDateString() ===
+
+    if (filterDate) {
+      // Only show reminders for that date
+      data = data.filter(
+        (r) =>
+          new Date(r.deadline).toDateString() ===
           new Date(filterDate).toDateString()
-        : true
-    );
+      );
+    }
 
     if (data.length === 0) {
-      reminders_list.innerHTML = "<p>No reminders found.</p>";
-      showToast("No reminders found.", "info"); // ✅ Info toast for empty list
+      reminders_list.innerHTML = `<p>No reminders ${
+        filterDate ? "for this date" : "found"
+      }.</p>`;
+      showToast("No reminders found.", "info");
       return;
     }
 
+    // Sort by deadline
     data.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+
+    // Render normal subject reminders
     handleReminders(data);
 
-    await addCPE();
-    await addLT();
+    // Add CPE and LT if no filterDate (only relevant in global focus)
+    if (!filterDate) {
+      await addCPE();
+      await addLT();
+    }
 
-    const subjects = Array.from(reminders_list.children);
-    console.log("Subjects, CPE, and LT: ", subjects);
-    subjects.forEach((subject) => {
-      const wrapper = subject.querySelector(".reminder-wrapper");
-      wrapper.classList.remove("hidden");
-      Array.from(wrapper.children).forEach((reminder) => {
-        if (reminder.id.endsWith("-valid")) {
+    // 🎯 If filterDate given, expand only those reminders
+    if (filterDate) {
+      reminders_list.querySelectorAll(".reminder").forEach((reminder) => {
+        const r = remindersMap.get(
+          Number(reminder.id.replace("reminder-", ""))
+        );
+        if (
+          r &&
+          new Date(r.deadline).toDateString() ===
+            new Date(filterDate).toDateString()
+        ) {
           reminder.classList.remove("hidden");
+          reminder.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+          reminder.classList.add("hidden");
         }
       });
-    });
+    } else {
+      const validReminders = document.getElementById("valid-reminders");
+      if (validReminders.children.length <= 1) {
+        validReminders.innerHTML += "<p>No current reminders.</p>";
+      } else {
+        Array.from(validReminders.children).forEach((wrapper) => {
+          wrapper.querySelector(".hidden")?.classList.remove("hidden");
+          console.log("Hiding valid wrapper", wrapper);
+        });
+      }
+    }
 
-    showToast("Reminders updated!", "success"); // ✅ Success toast for refresh
+    showToast("Reminders updated!", "success");
   } catch (error) {
-    console.error("Error fetching reminders:", error);
+    console.error("Error fetching reminders:" + error);
     document.getElementById("reminders-list").innerHTML =
       "<p>Error loading reminders. Please try again later.</p>";
-    showToast("Error loading reminders!", "error"); // ✅ Error toast
+    showToast("Error loading reminders!", "error");
   }
 
   updateTextArea();
@@ -428,11 +461,16 @@ async function updateList() {
 // Normal subject reminders
 function handleReminders(data) {
   if (data.length === 0) {
-    reminders_list.innerHTML = "<p>No reminders found.</p>";
+    document.getElementById("valid-reminders").innerHTML =
+      "<p>No current reminders.</p>";
+    document.getElementById("invalid-reminders").innerHTML =
+      "<p>No past reminders.</p>";
     return;
   }
+
   data.forEach((reminder) => {
-    addReminder(reminder, isDateValid(reminder.deadline));
+    const isValid = isDateValid(reminder.deadline);
+    addReminder(reminder, isValid);
   });
 }
 
@@ -454,8 +492,6 @@ async function addCPE() {
     newData.forEach((reminder) => {
       addReminder(reminder, isDateValid(reminder.deadline));
     });
-
-    document.getElementById("reminders-list").appendChild(CPESubjectDiv);
   } catch (error) {
     console.error("Error handling CPE:", error);
   }
@@ -477,8 +513,6 @@ async function addLT() {
     newData.forEach((reminder) => {
       addReminder(reminder, isDateValid(reminder.deadline));
     });
-
-    document.getElementById("reminders-list").appendChild(LTSubjectDiv);
   } catch (error) {
     console.error("Error handling LT:", error);
   }
@@ -502,53 +536,41 @@ function createReminderSection(subject, type, title) {
 }
 
 // Main: create subject container
-function getSubjectDiv(subject) {
-  // If already exists, just return it
-  let existing = document.getElementById(`reminder-container-${subject}`);
+function getSubjectDiv(subject, isValid) {
+  const parentId = isValid ? "valid-reminders" : "invalid-reminders";
+  let parentDiv = document.getElementById(parentId);
+
+  // If subject container already exists, return it
+  let existing = document.getElementById(
+    `reminder-container-${subject}-${isValid ? "valid" : "invalid"}`
+  );
   if (existing) return existing;
 
-  // Container for subject
+  // Create subject container
   const subjectContainer = document.createElement("div");
-  subjectContainer.id = `reminder-container-${subject}`;
+  subjectContainer.id = `reminder-container-${subject}-${
+    isValid ? "valid" : "invalid"
+  }`;
   subjectContainer.classList.add("reminder-container");
 
-  // Subject clickable title
-  const subjectDiv = document.createElement("div");
-  subjectDiv.classList.add("reminder-subject");
-  subjectDiv.id = `reminder-${subject}`;
-  subjectDiv.innerHTML = `<h2>${subject}</h2>`;
-  subjectContainer.appendChild(subjectDiv);
+  // Subject header
+  const subjectHeader = document.createElement("h3");
+  subjectHeader.textContent = subject;
+  subjectContainer.appendChild(subjectHeader);
 
-  // Wrapper (holds valid + invalid sections)
+  // Wrapper for reminders (collapsed by default)
   const wrapper = document.createElement("div");
   wrapper.classList.add("reminder-wrapper", "hidden");
-  wrapper.id = `reminder-wrapper-${subject}`;
+
+  // ✅ Only toggle if reminders exist
+  subjectHeader.onclick = () => {
+    if (wrapper.children.length > 0) {
+      wrapper.classList.toggle("hidden");
+    }
+  };
+
   subjectContainer.appendChild(wrapper);
-
-  // Create "valid" section
-  const validSection = createReminderSection(
-    subject,
-    "valid",
-    "Current reminders"
-  );
-  wrapper.appendChild(validSection.header);
-  wrapper.appendChild(validSection.page);
-
-  // Create "invalid" section
-  const invalidSection = createReminderSection(
-    subject,
-    "invalid",
-    "Past reminders"
-  );
-  wrapper.appendChild(invalidSection.header);
-  wrapper.appendChild(invalidSection.page);
-
-  // Toggle wrapper when subject header is clicked
-  subjectDiv.onclick = () => wrapper.classList.toggle("hidden");
-
-  // Add to main list
-  document.getElementById("reminders-list").appendChild(subjectContainer);
-
+  parentDiv.appendChild(subjectContainer);
   return subjectContainer;
 }
 
@@ -679,15 +701,18 @@ function editReminderDetail(id, field, currentValue) {
     });
 }
 
+// Store reminders globally (or inside your module)
+const remindersMap = new Map();
+
 function addReminder(reminder, isValid) {
-  const subjectDiv = getSubjectDiv(reminder.subject);
-  const subjectPageDiv = document.getElementById(
-    `reminder-page-${reminder.subject}-${isValid ? "valid" : "invalid"}`
-  );
-  const subjectContainerDiv = subjectPageDiv.querySelector(
-    ".reminder-page-container"
-  );
-  // subjectPageDiv.classList.add("hidden");
+  // Save reminder
+  remindersMap.set(reminder.id, reminder);
+
+  // Get the subject container (creates it if missing)
+  const subjectDiv = getSubjectDiv(reminder.subject, isValid);
+
+  // The wrapper is always the second child
+  const subjectWrapper = subjectDiv.querySelector(".reminder-wrapper");
 
   const reminderDiv = document.createElement("div");
   reminderDiv.classList.add("reminder");
@@ -704,159 +729,116 @@ function addReminder(reminder, isValid) {
   const file_key = file_key_str ? JSON.parse(file_key_str) : "";
 
   reminderDiv.innerHTML = `
-        <div class="reminder-header-wrapper">
-            <div class="reminder-header" id="reminder-header-${
-              reminder.id
-            }" style="display: flex; align-items: center; gap: 8px;">
-                <span contenteditable="false" class="reminder-title" style="flex: 1;">${title}</span>
-                ${
-                  admin
-                    ? `<div class="reminder-title-button">
-                    <button onclick="editReminderDetail(${
-                      reminder.id
-                    }, 'title', '${title.replace(/'/g, "\\'")}')">Edit</button>
-                    
-                    </div>
-                <div class="reminder-detail-button trash-icon" id="reminder-details-${
-                  reminder.id
-                }-delete">
-                <button onclick="deleteReminder(${
-                  reminder.id
-                })">&#x1F5D1</button>
-            </div>`
-                    : ""
-                }
-            </div>
-        </div>  
-        <div class="reminder-details" id="reminder-details-${
-          reminder.id
-        }-description" style="display: none;">
-            <div>
-                <span class="reminder-details-header">Description:</span>
-            </div>
-            <div class="reminder-detail-wrapper">
-                <span contenteditable="false" class="reminder-detail">${md
-                  .render(description)
-                  .replace(/<p>/g, "")
-                  .replace(/<\/p>/g, "")}</span>
-                ${
-                  admin
-                    ? `<div class="reminder-detail-button">
-                    <button onclick="editReminderDetail(${
-                      reminder.id
-                    }, 'description', '${description.replace(
-                        /'/g,
-                        "\\'"
-                      )}')">Edit</button>
-                </div>`
-                    : ""
-                }
-            </div>
-        </div>
-        <div class="reminder-details" id="reminder-details-${
-          reminder.id
-        }-type" style="display: none;">
-            <div>
-                <span class="reminder-details-header">Type of Activity:</span>
-            </div>
-            <div class="reminder-detail-wrapper">
-                <span contenteditable="false" class="reminder-detail">${
-                  ACTIVITIES[type]
-                }</span>
-                ${
-                  admin
-                    ? `<div class="reminder-detail-button">
-                    <button onclick="editReminderDetail(${
-                      reminder.id
-                    }, 'type', '${type.replace(/'/g, "\\'")}')">Edit</button>
-                </div>`
-                    : ""
-                }
-            </div>
-            <div class="reminder-detail-wrapper">
-            
-            </div>
-        </div>
-        <div class="reminder-details" id="reminder-details-${
-          reminder.id
-        }-deadline" style="display: none;">
-            <div>
-                <span class="reminder-details-header">Deadline:</span>
-            </div>
-            <div class="reminder-detail-wrapper">
-                <span contenteditable="false" class="reminder-detail">
-                ${new Date(deadline).toLocaleString("default", {
-                  month: "long",
-                })} 
-                ${new Date(deadline).getDate()}, 
-                ${new Date(deadline).getFullYear()} 
-                (${Math.ceil(
-                  Math.abs(new Date(deadline) - new Date()) /
-                    (1000 * 60 * 60 * 24)
-                )} days ${new Date(deadline) < new Date() ? "ago" : "left"})
-                </span>
-                ${
-                  admin
-                    ? `<div class="reminder-detail-button">
-                    <button onclick="editReminderDetail(${reminder.id}, 'deadline', '${deadline}')">Edit</button>
-                </div>`
-                    : ""
-                }
-            </div>
-        </div>
+    <div class="reminder-header-wrapper">
+      <div class="reminder-header" id="reminder-header-${
+        reminder.id
+      }" style="display: flex; align-items: center; gap: 8px;">
+        <span contenteditable="false" class="reminder-title" style="flex: 1;">${title}</span>
         ${
-          reference
-            ? `
-        <div class="reminder-details" id="reminder-details-${
-          reminder.id
-        }-reference" style="display: none;">
-            <div>
-                <span class="reminder-details-header">Reference:</span>
-            </div>
-            <div class="reminder-detail-wrapper">
-                <span contenteditable="false" class="reminder-detail">${reference}</span>
-                ${
-                  admin
-                    ? `<div class="reminder-detail-button">
-                    <button onclick="editReminderDetail(${
-                      reminder.id
-                    }, 'reference', '${reference.replace(
-                        /'/g,
-                        "\\'"
-                      )}')">Edit</button>
-                </div>`
-                    : ""
-                }
-            </div>
-        </div>`
+          admin
+            ? `<div class="reminder-title-button">
+                <button onclick="editReminderDetail(${reminder.id}, 'title')">Edit</button>
+               </div>
+               <div class="reminder-detail-button trash-icon" id="reminder-details-${reminder.id}-delete">
+                <button onclick="deleteReminder(${reminder.id})">&#x1F5D1</button>
+               </div>`
             : ""
         }
-        
-    `;
+      </div>
+    </div>
+    <div class="reminder-details" id="reminder-details-${
+      reminder.id
+    }-description" style="display: none;">
+      <div><span class="reminder-details-header">Description:</span></div>
+      <div class="reminder-detail-wrapper">
+        <span contenteditable="false" class="reminder-detail">
+          ${md.render(description).replace(/<p>/g, "").replace(/<\/p>/g, "")}
+        </span>
+        ${
+          admin
+            ? `<div class="reminder-detail-button">
+                <button onclick="editReminderDetail(${reminder.id}, 'description')">Edit</button>
+              </div>`
+            : ""
+        }
+      </div>
+    </div>
+    <div class="reminder-details" id="reminder-details-${
+      reminder.id
+    }-type" style="display: none;">
+      <div><span class="reminder-details-header">Type of Activity:</span></div>
+      <div class="reminder-detail-wrapper">
+        <span contenteditable="false" class="reminder-detail">${
+          ACTIVITIES[type]
+        }</span>
+        ${
+          admin
+            ? `<div class="reminder-detail-button">
+                <button onclick="editReminderDetail(${reminder.id}, 'type')">Edit</button>
+              </div>`
+            : ""
+        }
+      </div>
+    </div>
+    <div class="reminder-details" id="reminder-details-${
+      reminder.id
+    }-deadline" style="display: none;">
+      <div><span class="reminder-details-header">Deadline:</span></div>
+      <div class="reminder-detail-wrapper">
+        <span contenteditable="false" class="reminder-detail">
+          ${new Date(deadline).toLocaleString("default", { month: "long" })} 
+          ${new Date(deadline).getDate()}, 
+          ${new Date(deadline).getFullYear()} 
+          (${Math.ceil(
+            Math.abs(new Date(deadline) - new Date()) / (1000 * 60 * 60 * 24)
+          )} days ${new Date(deadline) < new Date() ? "ago" : "left"})
+        </span>
+        ${
+          admin
+            ? `<div class="reminder-detail-button">
+                <button onclick="editReminderDetail(${reminder.id}, 'deadline')">Edit</button>
+              </div>`
+            : ""
+        }
+      </div>
+    </div>
+    ${
+      reference
+        ? `<div class="reminder-details" id="reminder-details-${
+            reminder.id
+          }-reference" style="display: none;">
+            <div><span class="reminder-details-header">Reference:</span></div>
+            <div class="reminder-detail-wrapper">
+              <span contenteditable="false" class="reminder-detail">${reference}</span>
+              ${
+                admin
+                  ? `<div class="reminder-detail-button">
+                      <button onclick="editReminderDetail(${reminder.id}, 'reference')">Edit</button>
+                    </div>`
+                  : ""
+              }
+            </div>
+          </div>`
+        : ""
+    }
+  `;
+
+  // Attachments
   const fileWrapperDiv = document.createElement("div");
   fileWrapperDiv.id = `reminder-details-${reminder.id}-file`;
   fileWrapperDiv.classList.add("reminder-details");
   fileWrapperDiv.style.display = "none";
   fileWrapperDiv.innerHTML = `
-            <div>
-                <span class="reminder-details-header">Attachments:</span>
-            </div>
-            <div class="reminder-detail-wrapper">
-                
-            </div>`;
+    <div><span class="reminder-details-header">Attachments:</span></div>
+    <div class="reminder-detail-wrapper"></div>
+  `;
 
-  const fileDiv = document.createElement("div");
-  fileDiv.classList.add("reminder-detail");
   if (file_key) {
+    const fileDiv = document.createElement("div");
+    fileDiv.classList.add("reminder-detail");
     Array.from(file_key).forEach((file) => {
       const lower = file.toLowerCase();
-      if (
-        lower.endsWith(".png") ||
-        lower.endsWith(".jpg") ||
-        lower.endsWith(".jpeg") ||
-        lower.endsWith(".gif") ||
-        lower.endsWith(".webp")
-      ) {
+      if (/\.(png|jpe?g|gif|webp)$/.test(lower)) {
         const img = document.createElement("img");
         img.src = `/api/files/${file}`;
         img.alt = "Attachment";
@@ -875,27 +857,22 @@ function addReminder(reminder, isValid) {
         fileDiv.appendChild(document.createElement("br"));
       }
     });
-
     fileWrapperDiv
       .querySelector(".reminder-detail-wrapper")
       .appendChild(fileDiv);
     reminderDiv.appendChild(fileWrapperDiv);
   }
 
-  subjectContainerDiv.appendChild(reminderDiv);
+  subjectWrapper.appendChild(reminderDiv);
+
+  // Toggle details on click
   const subjectHeader = document.getElementById(
     `reminder-header-${reminder.id}`
   );
   subjectHeader.onclick = () => {
-    const details = document
-      .getElementById(`reminder-${reminder.id}`)
-      .querySelectorAll(".reminder-details");
+    const details = reminderDiv.querySelectorAll(".reminder-details");
     details.forEach((detail) => {
-      if (detail.style.display === "none") {
-        detail.style.display = "block";
-      } else {
-        detail.style.display = "none";
-      }
+      detail.style.display = detail.style.display === "none" ? "block" : "none";
     });
   };
 }

@@ -29,11 +29,13 @@ export async function onRequest(context) {
 
   try {
     const stmt = env.tesseau_db.prepare(
-      `INSERT INTO form_suggestions (content, author, email) VALUES (?, ?, ?) RETURNING *`
+      `INSERT INTO form_suggestions (content, author, email, date_added) VALUES (?, ?, ?, ?) RETURNING *`
     );
-    const result = await stmt.bind(content, author, email).first();
+    const result = await stmt
+      .bind(content, author, email, new Date().toISOString())
+      .first();
 
-    return new Response(JSON.stringify({ suggestion: result }), {
+    return new Response(JSON.stringify({ ...result }), {
       status: 201,
       headers: { "Content-Type": "application/json" },
     });

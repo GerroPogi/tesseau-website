@@ -48,15 +48,23 @@
 --   status integer default 1
 --   );
 
-CREATE TABLE reminder_suggestions (
+-- CREATE TABLE reminder_suggestions (
+--   id integer primary key autoincrement,
+--   subject text not null,
+--   title text not null,
+--   deadline datetime not null,
+--   date_added datetime not null,
+--   description text not null,
+--   reference text,
+--   type text not null,
+--   file_key text,
+--   creator text default null
+--   );
+
+CREATE TABLE form_suggestions(
   id integer primary key autoincrement,
-  subject text not null,
-  title text not null,
-  deadline datetime not null,
-  date_added datetime not null,
-  description text not null,
-  reference text,
-  type text not null,
-  file_key text,
-  creator text default null
-  );
+  author text,
+  content text not null,
+  date_added datetime,
+  email text
+);

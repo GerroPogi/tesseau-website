@@ -38,6 +38,10 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
+.responses-container h2 {
+  color: #2d3748;
+}
+
 #submit {
   background-color: #4caf50;
   color: white;
@@ -68,4 +72,20 @@
   display: flex;
   justify-content: flex-end; /* push button to the right */
   margin-top: 15px;
+}
+
+.suggestion-content {
+  display: inline-block;
+  font-size: 1.5em;
+  color: #2d3748;
+  /* margin-bottom: 5px; */
+  margin-left: 10px;
+}
+
+.suggestion-date {
+  float: right;
+  display: inline-block;
+  flex-direction: column;
+  flex: 1 1 auto; /* take up all available space */
+  color: #2d3748;
 }

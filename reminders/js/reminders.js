@@ -217,7 +217,6 @@ isAdmin().then((data) => {
     // Focus on the form after showing it
     setTimeout(() => {
       add_addButton();
-      document.getElementById("add-reminder-form").focus();
     }, 0);
   };
   updateList();

@@ -419,21 +419,12 @@ async function updateList() {
 
     // 🎯 If filterDate given, expand only those reminders
     if (filterDate) {
-      reminders_list.querySelectorAll(".reminder").forEach((reminder) => {
-        const r = remindersMap.get(
-          Number(reminder.id.replace("reminder-", ""))
-        );
-        if (
-          r &&
-          new Date(r.deadline).toDateString() ===
-            new Date(filterDate).toDateString()
-        ) {
+      reminders_list
+        .querySelectorAll(".reminder-wrapper")
+        .forEach((reminder) => {
           reminder.classList.remove("hidden");
-          reminder.scrollIntoView({ behavior: "smooth", block: "center" });
-        } else {
-          reminder.classList.add("hidden");
-        }
-      });
+          console.log("Showing valid reminder", reminder);
+        });
     } else {
       const validReminders = document.getElementById("valid-reminders");
       if (validReminders.children.length <= 1) {
